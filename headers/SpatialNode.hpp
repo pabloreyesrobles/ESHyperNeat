@@ -29,9 +29,6 @@ namespace ANN_USM{
 	 */
 	class SpatialNode
 	{	
-		// node sheet id value 
-		int sheet_id;
-
 		// node type value. Input: 0, Hidden: 1, Output: 2 
 		int node_type;
 
@@ -72,7 +69,7 @@ namespace ANN_USM{
 		 * \param sheet_id Sheet id value
 		 * \param coordenates Cartesian coordinate vector of node
 		 */
-		SpatialNode(int node_type, int sheet_id, vector < double > coordenates, char * node_function);
+		SpatialNode(int node_type, vector < double > coordenates, char * node_function);
 
 		/**
 		 * \brief Void constructor
@@ -121,12 +118,6 @@ namespace ANN_USM{
 		 * \return node type value
 		 */
 		int GetNodeType();
-
-		/**
-		 * \brief Get sheet node id
-		 * \return Sheet node id value
-		 */
-		int GetSheetNodeId();
 
 		/**
 		 * \brief Get node output

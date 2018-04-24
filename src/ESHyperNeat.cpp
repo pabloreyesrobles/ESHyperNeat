@@ -1,10 +1,10 @@
-#ifndef HYPERNEAT_CPP
-#define HYPERNEAT_CPP
+#ifndef ESHYPERNEAT_CPP
+#define ESHYPERNEAT_CPP
 
-#include "HyperNeat.hpp"
+#include "ESHyperNeat.hpp"
 using namespace ANN_USM;
 
-double HyperNeat::scaleWeight(double weight)
+double ESHyperNeat::scaleWeight(double weight)
 {
 	if (weight > 0.0)
 	{
@@ -16,7 +16,7 @@ double HyperNeat::scaleWeight(double weight)
 	
 }
 
-HyperNeat::HyperNeat(vector < double * > inputs, vector < double * > outputs, char * config_file)
+ESHyperNeat::ESHyperNeat(vector < double * > inputs, vector < double * > outputs, char * config_file)
 {
 	// ============================= READING JSON FILE ============================= //
 	ifstream file;
@@ -29,13 +29,13 @@ HyperNeat::HyperNeat(vector < double * > inputs, vector < double * > outputs, ch
 	hyperNeatJsonDeserialize(hyperneat_info);	
 }
 
-HyperNeat::~HyperNeat()
+ESHyperNeat::~ESHyperNeat()
 {
 	free(substrate);
 	vector<CPPNInputs>().swap(AditionalCPPNInputs);
 }
 
-void HyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
+void ESHyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 {
 	int dataNumber = 0;
 
@@ -95,7 +95,7 @@ void HyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 		pch = substrate->SJsonDeserialize(pch);
 	}
 
-	if(dataNumber != HYPERNEAT_DATANUMBER)
+	if(dataNumber != ESHYPERNEAT_DATANUMBER)
 	{
 		cerr << "HYPERNEAT ERROR:\tThe hyperneat config file is not correct" << endl;
 		exit(0);
@@ -104,11 +104,11 @@ void HyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 	clog << "HYPERNEAT:\tSuccessful serialization" << endl;
 }
 
-bool HyperNeat::createSubstrateConnections(Genetic_Encoding * organism)
+bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding * organism)
 {
 	okConnections = false;
 
-	if(substrate->GetLayersNumber() == 0)
+	if(substrate->(int)input_nodes.size() == 0 && substrate->(int)output_nodes.size())
 	{
 		cerr << "HYPERNEAT ERROR:\tDoes not exist any substrate initialized" << endl;
 		return false;
@@ -155,10 +155,15 @@ bool HyperNeat::createSubstrateConnections(Genetic_Encoding * organism)
 
 	cerr << "HYPERNEAT ERROR:\tDoes not exist any active output node" << endl;
 	return false;
+
+	//////////////////////// ESHyperNeat ///////////////////////////////
+	// Considerar y trabajar en los parámetros del algoritmo:
+	// initialDepth, maxDepth, varianceThreshold, bandThreshold,
+	// iterationLevel, divisionThreshold
 	
 }
 
-bool HyperNeat::createSubstrateConnections(char * path)
+bool ESHyperNeat::createSubstrateConnections(char * path)
 {
 	Genetic_Encoding * organism = new Genetic_Encoding();
 	organism->load(path);
@@ -166,9 +171,10 @@ bool HyperNeat::createSubstrateConnections(char * path)
 	return createSubstrateConnections(organism);	
 }
 
-bool HyperNeat::evaluateSubstrateConnections()
+bool ESHyperNeat::evaluateSubstrateConnections()
 {
-	if(substrate->GetLayersNumber() == 0){
+	if(substrate->(int)input_nodes.size() == 0 && substrate->(int)output_nodes.size() == 0)
+	{
 		cerr << "HYPERNEAT ERROR:\tDoes not exist any substrate initialized" << endl;
 		return false;
 	}
@@ -179,13 +185,14 @@ bool HyperNeat::evaluateSubstrateConnections()
 		return false;
 	}
 
-	for(int i = 0; i < substrate->GetLayersNumber(); i++)
-		substrate->EvaluateSpatialNode(i);
+	substrate->EvaluateSpatialNode(substrate->input_nodes);
+	substrate->EvaluateSpatialNode(substrate->hidden_nodes);
+	substrate->EvaluateSpatialNode(substrate->output_nodes);
 
 	return true;
 }
 
-void HyperNeat::getHyperNeatOutputFunctions(Genetic_Encoding * organism)
+void ESHyperNeat::getHyperNeatOutputFunctions(Genetic_Encoding * organism)
 {
 	if(!createSubstrateConnections(organism))
 	{
@@ -240,7 +247,7 @@ void HyperNeat::getHyperNeatOutputFunctions(Genetic_Encoding * organism)
   	clog << "HYPERNEAT:\tHyperNeat output function was created successfully" << endl;
 }
 
-void HyperNeat::getHyperNeatOutputFunctions(char * path)
+void ESHyperNeat::getHyperNeatOutputFunctions(char * path)
 {
 	Genetic_Encoding * organism = new Genetic_Encoding();
 	organism->load(path);
@@ -248,7 +255,7 @@ void HyperNeat::getHyperNeatOutputFunctions(char * path)
 	getHyperNeatOutputFunctions(organism);
 }
 
-void HyperNeat::getNodeFunction()
+void ESHyperNeat::getNodeFunction()
 {
 	ofstream myfile("functions_files/SIGMOID.m");
 
@@ -263,7 +270,7 @@ void HyperNeat::getNodeFunction()
   		cerr << "HYPERNEAT ERROR:\tUnable to open file: functions_files/SIGMOID.m" << endl;	
 }
 
-void HyperNeat::printConnectionFile(Genetic_Encoding * organism, const char fileName[])
+void ESHyperNeat::printConnectionFile(Genetic_Encoding * organism, const char fileName[])
 {
 	if(!createSubstrateConnections(organism))
 	{
@@ -288,12 +295,175 @@ void HyperNeat::printConnectionFile(Genetic_Encoding * organism, const char file
 	clog << "HYPERNEAT:\tHyperNeat connection file was printed successfully" << endl;
 }
 
-void HyperNeat::printConnectionFile(char * path, const char fileName[])
+void ESHyperNeat::printConnectionFile(char * path, const char fileName[])
 {
 	Genetic_Encoding * organism = new Genetic_Encoding();
 	organism->load(path);
 
 	printConnectionFile(organism, fileName);
+}
+
+void ESHyperNeat::DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing){
+	vector <double> t_input;
+	vector <double> t_output;
+	QuadPoint *p;
+	queue <QuadPoint *> q;
+
+	q.push(root);
+	while (!q.empty()){
+		p = q.front();
+
+		p->children.push_back(new QuadPoint(p->x - p->width/2, p->y - p->width/2, p->width/2, p->level + 1));
+		p->children.push_back(new QuadPoint(p->x - p->width/2, p->y + p->width/2, p->width/2, p->level + 1));
+		p->children.push_back(new QuadPoint(p->x + p->width/2, p->y - p->width/2, p->width/2, p->level + 1));
+		p->children.push_back(new QuadPoint(p->x + p->width/2, p->y + p->width/2, p->width/2, p->level + 1));
+
+		for (int i = 0; p->children.size(); i++){
+			vector <double> t_coordenates = node->GetCoordenates();
+
+			if (outgoing) {
+				t_input.insert(t_input.end(), t_coordenates.begin(), t_coordenates.end());
+				t_input.insert(t_input.end(), p->children.at(i)->x, p->children.at(i)->y);
+			}
+
+			else {
+				t_input.insert(t_input.end(), p->children.at(i)->x, p->children.at(i)->y);
+				t_input.insert(t_input.end(), t_coordenates.begin(), t_coordenates.end());
+			}
+
+			for(int c = 0; c < (int)AditionalCPPNInputs.size(); c++)
+				t_input.push_back(AditionalCPPNInputs.at(c).Eval(t_input));
+
+			t_output = organism->eval(t_input);
+			p->children->weight = t_output[0];
+		}
+
+		if ((p->level < InitialDepth) || ((p->level < MaxDepth) && Variance(p) > DivisionThreshold)) // ADD PARAMETERS
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                q.push(p->children.at(i));
+            }
+        }
+        q.pop();
+	}
+}
+
+void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing){
+	if (root->children[0] == NULL)
+    {
+        return;
+    }
+
+    else
+    {
+        for (unsigned int i = 0; i < 4; i++)
+        {
+            if (Variance(root->children[i]) > VarianceThreshold) // ADD PARAMETERS
+            {
+                PruneExpress(node, root->children[i], organism, connections, outgoing);
+            }
+
+            // Band Pruning phase.
+            else
+            {
+                double d_left, d_right, d_top, d_bottom;
+                vector <double> t_input;
+                vector <double> t_output;
+
+                int root_index = 0;
+
+                vector <double> t_coordenates = node->GetCoordenates();
+
+                if (outgoing)
+                {
+                    t_input.insert(t_input.end(), t_coordenates.begin(), t_coordenates.end());
+					t_input.insert(t_input.end(), root->children.at(i)->x, root->children.at(i)->y);
+
+                    root_index = t_coordenates.size();
+                }
+
+                else
+                {
+                    t_input.insert(t_input.end(), root->children.at(i)->x, root->children.at(i)->y);
+					t_input.insert(t_input.end(), t_coordenates.begin(), t_coordenates.end());
+                }
+
+                for(int c = 0; c < (int)AditionalCPPNInputs.size(); c++)
+					t_input.push_back(AditionalCPPNInputs.at(c).Eval(t_input));
+
+                // Left
+                t_input[root_index] -= root->width;
+                t_output = organism->eval(t_input);
+                d_left = Abs(root->children[i]->weight - t_output[0]); // DEFINE ABS
+                
+                // Right
+                t_input[root_index] += 2 * (root->width);
+                t_output = organism->eval(t_input);
+                d_right = Abs(root->children[i]->weight - t_output[0]); // DEFINE ABS
+
+                // Top
+                t_input[root_index] -= root->width;
+                t_input[root_index + 1] -= root->width;
+                t_output = organism->eval(t_input);
+                d_top = Abs(root->children[i]->weight - t_output[0]); // DEFINE ABS
+
+                // Bottom
+                t_input[root_index + 1] += 2 * root->width;
+                t_output = organism->eval(t_input);
+                d_bottom = Abs(root->children[i]->weight - t_output[0]); // DEFINE ABS
+                
+                if (max(min(d_top, d_bottom), (d_left, d_right)) > BandThreshold) // ADD PARAMETERS
+                {
+                	vector <double> n_coordinates;
+                	n_coordinates.insert(n_coordinates.end(), root->children.at(i)->x, root->children.at(i)->y);
+
+                	SpatialNode *n_node = new SpatialNode(1, n_coordinates, substrate->node_function);
+                	substrate->hidden_nodes.push_back(n_node);
+
+                    if (outgoing)
+                    {
+                        n_node->AddInputToNode(node, root->children[i]->weight);
+                    }
+                    else
+                    {
+                        node->AddInputToNode(n_node, root->children[i]->weight);
+                    }
+                }
+            }
+        }
+    }
+}
+
+double ESHyperNeat::QuadPointMean(QuadPoint *point){
+	double sum = 0;
+
+	if (point->children[0] == NULL) 
+		return 0.0;
+
+	else 
+	{
+		for (int i = 0; i < point->children.size(); i++)
+			sum += point->children[i]->weight;
+	}
+
+	return sum / point->children.size();
+}
+
+double ESHyperNeat::QuadPointVariance(QuadPoint *point){
+	double sum = 0;
+	double mean = QuadPointMean(point);
+
+	if (point->children[0] == NULL) 
+		return 0.0;
+
+	else 
+	{
+		for (int i = 0; i < point->children.size(); i++)
+			sum += pow(point->children[i]->weight - mean, 2);
+	}
+
+	return sum / point->children.size();
 }
 
 #endif

@@ -5,10 +5,9 @@
 
 using namespace ANN_USM;
 
-SpatialNode::SpatialNode(int node_type, int sheet_id, vector < double > coordenates, char * node_function)
+SpatialNode::SpatialNode(int node_type, vector <double> coordenates, char *node_function)
 {
 	this->node_type = node_type;
-	this->sheet_id = sheet_id;
 	this->coordenates = coordenates;
 
 	int size = strlen(node_function)+1;
@@ -79,13 +78,7 @@ void SpatialNode::AddInputToNode(SpatialNode * input_node, double input_weight)
 		cerr << "ERROR: Can not connect to a node of type input" << endl;
 		return;
 	}
-
-	if (input_node->GetSheetNodeId() >= sheet_id)
-	{			
-		cerr << "ERROR: Can not make a recurrent connection" << endl;
-		return;
-	}
-
+	
 	if(!active) active = input_node->ActiveNode();
 
 	inputs_nodes.push_back(input_node);
@@ -112,11 +105,6 @@ vector < double > SpatialNode::GetCoordenates()
 int SpatialNode::GetNodeType()
 {
 	return node_type;
-}
-
-int SpatialNode::GetSheetNodeId()
-{
-	return sheet_id;
 }
 
 double SpatialNode::GetOuput()
@@ -192,6 +180,11 @@ string SpatialNode::getConnectionString()
 		connections << "\t\tThis node has no connections" << endl;
 
 	return connections.str();
+}
+
+bool SpatialNode::operator == (const SpatialNode &node) const
+{
+    return this->node_type == node.node_type && this->coordenates == node.coordenates && this->node_function == node.node_function;
 }
 
 #endif

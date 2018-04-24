@@ -18,20 +18,13 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 {
 	const char delimeters[] = "{\"\t\n:,[ ]}";
 
-	int n_layers = 0;
+	int substrate_type = 0;
+	int n_rows = 2;
 	int coordenate_type = 0;
 	int n_nodes = 0;
 
 	int dataNumber = 0;
-
-	if(!strcmp(substrate_info,(char *)"n_layers"))
-	{					
-		dataNumber++;
-
-		substrate_info = strtok(NULL, delimeters);
-		n_layers = atoi(substrate_info);
-		substrate_info = strtok(NULL, delimeters);
-	}
+		
 	if(!strcmp(substrate_info,(char *)"coordenate_type"))
 	{
 		dataNumber++;
@@ -52,12 +45,13 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 
 		substrate_info = strtok(NULL, delimeters);
 	}
-	if (!strcmp(substrate_info,(char *)"Layers"))
+
+	if (!strcmp(substrate_info,(char *)"Rows"))
 	{
 		dataNumber++;
 
 		substrate_info = strtok(NULL, delimeters);
-		for(int i = 0; i < n_layers; i++)
+		for(int i = 0; i < 2; i++)
 		{
 			if(!strcmp(substrate_info,(char *)"n_nodes"))
 			{
@@ -69,7 +63,7 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 					cerr << "HYPERNEAT ERROR:\tThe size of inputs vector mismatch with input nodes number in the substrate configuration. The size of inputs vector is " << (int)inputs.size() << " but should be " << n_nodes << "." << endl;
 					exit(0);
 				}
-				else if(i == n_layers-1 && n_nodes != (int)outputs.size())
+				else if(i == n_rows-1 && n_nodes != (int)outputs.size())
 				{
 					cerr << "HYPERNEAT ERROR:\tThe size of outputs vector mismatch with output nodes number in the substrate configuration. The size of outputs vector is " << (int)outputs.size() << " but should be " << n_nodes << "." << endl;
 					exit(0);
@@ -95,7 +89,7 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 						coordenates.push_back(atof(substrate_info));
 					}			
 
-					aux1.push_back(new SpatialNode(node_type,i,coordenates, node_function));
+					aux1.push_back(new SpatialNode(node_type, coordenates, node_function));
 
 					if(node_type == 0)
 						aux1.at(j)->SetInputToInputNode(inputs.at(IO_id), IO_id);
@@ -104,7 +98,8 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 							aux1.at(j)->SetOutputToOutputNode(outputs.at(IO_id), IO_id);
 
 				}
-				nodes.push_back(aux1);
+				if (i == 0) input_nodes.push_back(aux1);
+				else output_nodes.push_back(aux1);
 				substrate_info = strtok(NULL, delimeters);
 			}
 		}
@@ -119,62 +114,41 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 	return substrate_info;
 }
 
+// Eliminar
 int Substrate::GetLayersNumber()
 {
 	return (int)nodes.size();
 }
+///////////
 
-int Substrate::GetLayerNodesNumber(int layer_num)
+int Substrate::GetLayerNodesNumber(vector <SpatialNode *> layer)
 {
-	if(layer_num + 1 > (int)nodes.size() || layer_num < 0)
-	{
-		cerr << "HYPERNEAT ERROR:\tThe layer " << layer_num << " does not exist" << endl;
-		return 0;
-	}
-
-	return (int)nodes.at(layer_num).size();
+	// Add constraint to verify the existence of the layer. Could be replaceable by one method for each layer in order to avoid the previous.
+	return (int)layer.size();
 }
 
-SpatialNode * Substrate::GetSpatialNode(int layer_num, int node_num)
+SpatialNode * Substrate::GetSpatialNode(vector <SpatialNode *> layer, int node_num)
 {
-	if(layer_num + 1 > (int)nodes.size() || layer_num < 0)
+	if(node_num + 1 > (int)layer.size())
 	{
-		cerr << "HYPERNEAT ERROR:\tThe layer " << layer_num << " does not exist" << endl;
+		cerr << "ESHYPERNEAT ERROR:\tThe node " << node_num << " in the layer does not exist" << endl;
 		return NULL;
 	}
 
-	if(node_num + 1 > (int)nodes.at(layer_num).size())
-	{
-		cerr << "HYPERNEAT ERROR:\tThe node " << node_num << " in the layer "<< layer_num << " does not exist" << endl;
-		return NULL;
-	}
-
-	return nodes.at(layer_num).at(node_num);
+	return layer.at(node_num);
 }
 
-void Substrate::EvaluateSpatialNode(int layer_num)
+void Substrate::EvaluateSpatialNode(vector <SpatialNode *> layer)
 {
-	if(layer_num + 1 > (int)nodes.size() || layer_num < 0)
-	{
-		cerr << "HYPERNEAT ERROR:\tThe layer " << layer_num << " does not exist" << endl;
-		return;
-	}
-
-	for(int i = 0; i < (int)nodes.at(layer_num).size(); i++){
-		nodes.at(layer_num).at(i)->OutputCalcule();
+	for(int i = 0; i < (int)layer.size(); i++){
+		layer.at(i)->OutputCalcule();
 	}
 }
 
-void Substrate::ClearSpatialNodeInputs(int layer_num)
-{	
-	if(layer_num + 1 > (int)nodes.size() || layer_num < 0)
-	{
-		cerr << "HYPERNEAT ERROR:\tThe layer " << layer_num << " does not exist" << endl;
-		return;
-	}
-
-	for(int i = 0; i < (int)nodes.at(layer_num).size(); i++){
-		nodes.at(layer_num).at(i)->ClearInputs();
+void Substrate::ClearSpatialNodeInputs(vector <SpatialNode *> layer)
+{
+	for(int i = 0; i < (int)layer.size(); i++){
+		layer.at(i)->ClearInputs();
 	}
 }
 
@@ -182,10 +156,8 @@ vector < string > Substrate::GetSubstrateOutputFunctions()
 {
 	vector < string > functions;
 	
-	for(int i = 0; i < (int)nodes.size(); i++)
-		for(int j = 0; j < (int)nodes.at(i).size(); j++)
-			if(nodes.at(i).at(j)->GetNodeType() == 2)
-				functions.push_back(nodes.at(i).at(j)->GetOutputNodeFunction());
+	for(int j = 0; j < (int)output_nodes.size(); j++)
+		functions.push_back(output_nodes.at(j)->GetOutputNodeFunction());
 	
 	return functions;
 }
@@ -193,10 +165,8 @@ vector < int > Substrate::GetInputOrder()
 {
 	vector < int > input_order;
 	
-	for(int i = 0; i < (int)nodes.size(); i++)
-		for(int j = 0; j < (int)nodes.at(i).size(); j++)
-			if(nodes.at(i).at(j)->GetNodeType() == 0)
-				input_order.push_back(nodes.at(i).at(j)->GetInputId());
+	for(int j = 0; j < (int)input_nodes.size(); j++)
+		input_order.push_back(input_nodes.at(j)->GetInputId());
 	
 	return input_order;
 }
@@ -205,10 +175,8 @@ vector < int > Substrate::GetOutputOrder()
 {
 	vector < int > output_order;
 	
-	for(int i = 0; i < (int)nodes.size(); i++)
-		for(int j = 0; j < (int)nodes.at(i).size(); j++)
-			if(nodes.at(i).at(j)->GetNodeType() == 2)
-				output_order.push_back(nodes.at(i).at(j)->GetOutputId());
+	for(int j = 0; j < (int)output_nodes.size(); j++)
+		output_order.push_back(output_nodes.at(j)->GetOutputId());
 	
 	return output_order;
 }
@@ -217,20 +185,37 @@ string Substrate::getSubstrateConnectionString()
 {
 	stringstream connections;
 
-	for(int i = 0; i < (int)nodes.size(); i++)
-	{
-		connections << "Layer " << i << endl << "{" << endl;
+	connections << "Layer " << i << endl << "{" << endl;
 
-		for(int j = 0; j < (int)nodes.at(i).size(); j++)
+	for(int j = 0; j < (int)input_nodes.size(); j++)
+	{
+		connections << "\tNode " << j << endl;
+		connections << "\t{" << endl;
+		connections << input_nodes.at(j)->getConnectionString();
+		connections << "\t}" << endl;
+	}
+
+	if (((int)hidden_nodes.size()))
+	{
+		for(int j = 0; j < (int)hidden_nodes.size(); j++)
 		{
 			connections << "\tNode " << j << endl;
 			connections << "\t{" << endl;
-			connections << nodes.at(i).at(j)->getConnectionString();
+			connections << hidden_nodes.at(j)->getConnectionString();
 			connections << "\t}" << endl;
 		}
-
-		connections << "}" << endl;
 	}
+
+	for(int j = 0; j < (int)output_nodes.size(); j++)
+	{
+		connections << "\tNode " << j << endl;
+		connections << "\t{" << endl;
+		connections << output_nodes.at(j)->getConnectionString();
+		connections << "\t}" << endl;
+	}
+
+	connections << "}" << endl;
+
 
 	return connections.str();
 }

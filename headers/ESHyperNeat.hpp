@@ -1,5 +1,5 @@
-#ifndef HYPERNEAT_H
-#define HYPERNEAT_H
+#ifndef ESHYPERNEAT_H
+#define ESHYPERNEAT_H
 
 #include <NEAT>
 #include "Substrate.hpp"
@@ -20,10 +20,10 @@ using namespace std;
  */
 namespace ANN_USM{
 	/**
-	 * \class HyperNeat
-	 * \brief The HyperNeat class is used to implement a neuroevolution method called HyperNeat.
+	 * \class ESHyperNeat
+	 * \brief The ESHyperNeat class is used to implement a neuroevolution method called ESHyperNeat.
 	 */
-	class HyperNeat
+	class ESHyperNeat
 	{
 		// Vector of aditional cppn inputs
 		vector < CPPNInputs > AditionalCPPNInputs;
@@ -39,23 +39,23 @@ namespace ANN_USM{
 
 	public:
 
-		Substrate * substrate;/**< hyperNeat substrate */
+		Substrate * substrate;/**< ESHyperNeat substrate */
 
 		/**
 		 * \brief Constructor with parameters.
 		 * \param inputs Input vector.
 		 * \param outputs Output vector.
-		 * \param hyperneat_info_file Json file.
+		 * \param EShyperneat_info_file Json file.
 		 */
-		HyperNeat(vector < double * > inputs, vector < double * > outputs, char * config_file);
+		ESHyperNeat(vector < double * > inputs, vector < double * > outputs, char * config_file);
 
 		/**
 		 * \brief Destructor.
 		 */
-		~HyperNeat();
+		~ESHyperNeat();
 
 		/**
-		 * \brief Extract all HyperNeat information of json string.
+		 * \brief Extract all ESHyperNeat information of json string.
 		 * \param hyperneat_info json string.
 		 */
 		void hyperNeatJsonDeserialize(string hyperneat_info);
@@ -108,6 +108,96 @@ namespace ANN_USM{
 		 * \param Path to the organism of CPPN-NEAT that will create connections in the substrate.
 		 */
 		void printConnectionFile(char * path, const char fileName[] = "HyperNeat_Connections.txt");
+
+		/////////////////////////////////////////////
+        // Evolvable Substrate HyperNEAT
+        ////////////////////////////////////////////
+        
+        // Temporal connection between two spatial nodes
+        struct TempConnection
+        {
+           	SpatialNode * source;
+            SpatialNode * target;
+            double weight;
+            
+            TempConnection()
+            { 
+            	weight = 0;
+            }
+            
+            TempConnection(SpatialNode * t_source, SpatialNode * t_target, double t_weight)
+            {
+                source = t_source;
+                target = t_target;
+                weight = t_weight;
+            }
+            
+            ~TempConnection()
+            {
+
+            };
+            
+            bool operator==(const TempConnection &rhs) const
+            {
+                return (source == rhs.source && target == rhs.target);
+            }
+            
+            bool operator!=(const TempConnection &rhs) const
+            {
+                return (source != rhs.source && target != rhs.target);
+            }
+        };
+        
+        // A quadpoint in the HyperCube.
+        struct QuadPoint
+        {
+            double x;
+            double y;
+            double width;
+            double weight;
+            double variance;
+            int level;
+            
+            vector < QuadPoint * > children;
+            
+            QuadPoint()
+            {
+                x = y = width = weight = variance = 0;
+                level = 0;
+                children.reserve(4);
+            }
+            
+            QuadPoint(double t_x, double t_y, double t_width, double t_height, int t_level)
+            {
+                x = t_x;
+                y = t_y;
+                width = t_width;
+                height = t_height;
+                level = t_level;
+                weight = 0.0;
+                variance = 0.0;
+                children.reserve(4);
+                children.clear();
+            }
+            
+            ~QuadPoint()
+            {
+
+            };
+        };
+        
+        void DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing);
+        
+        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing);
+        
+        void CollectValues(std::vector<double> &vals, boost::shared_ptr<QuadPoint> &point);
+
+        double QuadPointMean(QuadPoint *point);
+        
+        double QuadPointVariance(QuadPoint *point);
+        
+        void Clean_Net(std::vector<Connection> &connections, unsigned int input_count,
+                       unsigned int output_count, unsigned int hidden_count);
 	};
 }
 #endif

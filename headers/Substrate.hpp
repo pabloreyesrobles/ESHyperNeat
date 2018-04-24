@@ -27,8 +27,10 @@ namespace ANN_USM
 	 */
 	class Substrate
 	{			
-		// Vector of nodes in each layer of each layout in the substrate
-		vector < vector < SpatialNode * > > nodes; 
+		// Vector of nodes in each layer of each layout in the substrate. There is one layer for each node type.
+		vector <SpatialNode *> input_nodes; 
+		vector <SpatialNode *> hidden_nodes;
+		vector <SpatialNode *> output_nodes;
 		char * node_function;
 		
 	public:
