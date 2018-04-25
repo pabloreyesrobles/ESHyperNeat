@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include "SpatialNode.hpp"
+#include "Connection.hpp"
 
 #define SUBSTRATE_DATANUMBER 4
 
@@ -31,6 +32,8 @@ namespace ANN_USM
 		vector <SpatialNode *> input_nodes; 
 		vector <SpatialNode *> hidden_nodes;
 		vector <SpatialNode *> output_nodes;
+
+		vector <Connection *> connections;
 		char * node_function;
 		
 	public:

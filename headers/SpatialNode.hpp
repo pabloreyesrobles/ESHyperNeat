@@ -60,7 +60,10 @@ namespace ANN_USM{
 		double (SpatialNode::*NodeFunction)(double);
 
 		double Sigmoid(double input);
-		
+
+		// ESHyperNeat phenotype construction, check node connection
+		bool incoming = false, outgoing = false;
+
 	public:
 
 		/**
@@ -94,6 +97,12 @@ namespace ANN_USM{
 		 * \param output_id HyperNeat output id
 		 */
 		void SetOutputToOutputNode(double * output, int output_id);
+
+		/**
+		 * \brief Check if input_node is already connected to node
+		 * \param input_node Node to be checked if already connected
+		 */
+		bool SpatialNode::CheckInputNode(SpatialNode *input_node)
 
 		/**
 		 * \brief Add input to node from other node

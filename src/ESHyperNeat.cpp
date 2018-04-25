@@ -106,61 +106,100 @@ void ESHyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 
 bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding * organism)
 {
-	okConnections = false;
-
-	if(substrate->(int)input_nodes.size() == 0 && substrate->(int)output_nodes.size())
-	{
-		cerr << "HYPERNEAT ERROR:\tDoes not exist any substrate initialized" << endl;
-		return false;
-	}
-
-	if(substrate->GetLayersNumber() - 1 != organism->getNEATOutputSize())
-	{
-		cerr << "HYPERNEAT ERROR:\tThe layout number does not correspond to the cppn output number" << endl;
-		return false;
-	}
-
-	for(int i = 0; i < substrate->GetLayersNumber()-1; i++)
-	{				
-		substrate->ClearSpatialNodeInputs(i+1);
-
-		for(int j = 0; j < substrate->GetLayerNodesNumber(i); j++)
-			for(int k = 0; k < substrate->GetLayerNodesNumber(i+1); k++)
-			{
-				vector < double > cppn_inputs;
-				vector < double > cppn_output;
-				vector < double > c1 = (substrate->GetSpatialNode(i,j))->GetCoordenates();
-				vector < double > c2 = (substrate->GetSpatialNode(i+1,k))->GetCoordenates();
-				cppn_inputs.insert(cppn_inputs.end(), c1.begin(), c1.end());
-				cppn_inputs.insert(cppn_inputs.end(), c2.begin(), c2.end());
-
-				for(int c = 0; c < (int)AditionalCPPNInputs.size(); c++)
-					cppn_inputs.push_back(AditionalCPPNInputs.at(c).Eval(cppn_inputs));
-				
-				cppn_output = organism->eval(cppn_inputs);
-
-				if(abs(cppn_output.at(i)) > connection_threshold)
-					(substrate->GetSpatialNode(i+1,k))->AddInputToNode(substrate->GetSpatialNode(i,j), scaleWeight(cppn_output.at(i)));
-			}
-	}		
-	
-	for(int i = 0; i < substrate->GetLayersNumber(); i++)
-		for(int j = 0; j < substrate->GetLayerNodesNumber(i); j++)
-			if((substrate->GetSpatialNode(i,j))->GetNodeType() == 2 && (substrate->GetSpatialNode(i,j))->ActiveNode())
-			{
-				okConnections = true;
-				//clog << "HYPERNEAT:\tConnections successfully created" << endl;
-				return true; 
-			}
-
-	cerr << "HYPERNEAT ERROR:\tDoes not exist any active output node" << endl;
-	return false;
-
 	//////////////////////// ESHyperNeat ///////////////////////////////
 	// Considerar y trabajar en los parámetros del algoritmo:
 	// initialDepth, maxDepth, varianceThreshold, bandThreshold,
 	// iterationLevel, divisionThreshold
-	
+
+	unsigned int input_count = input_nodes.size();
+	unsigned int output_count = output_nodes.size();
+	unsigned int c_count = 0;
+    unsigned int maxNodes = pow(4, params.MaxDepth); // ADD PARAMETERS
+
+    QuadPoint *root;
+
+    vector <TempConnection *> temp_connections;
+    vector <SpatialNode *> temp;
+    vector <SpatialNode *> unexplored_nodes;
+
+    //hidden_nodes.reserve(maxNodes);
+    //connections.reserve(maxNodes + 2);
+
+    // Input to hidden node connections
+    for (int i = 0; i < input_count; i++){
+    	root = new QuadPoint(0, 0, 1, 1);
+    	temp_connections.clear();
+    	DivideInitialize(input_nodes.at(i), root, organism, true);
+    	PruneAndExtraction(input_nodes.at(i), root, organism, temp_connections, true);
+
+    	for (int j = 0; j < temp_connections.size(); j++){
+    		if (temp_connections[j]->weight > connection_threshold){ // REVIEW THIS THRESHOLD
+    			if (!(temp_connections[j]->target)->CheckInputNode(temp_connections[j]->source)){
+    				(temp_connections[j]->target)->AddInputToNode(temp_connections[j]->source);
+	    			hidden_nodes.push_back(temp_connections[j]->target);
+
+	    			Connection n_connection = new Connection(c_count++, temp_connections[j]->source, temp_connections[j]->target, temp_connections[j]->weight);
+	    			substrate->connections.push_back(n_connection);
+    			}
+    		}    			
+    	}
+    }
+
+    // Hidden to hidden node connections
+    unexplored_nodes = hidden_nodes;
+    for (int i = 0; i < iterationLevel; i++){
+    	for (int j = 0; j < unexplored_nodes.size(); j++){
+    		root = new QuadPoint(0, 0, 1, 1);
+    		temp_connections.clear();
+    		DivideInitialize(unexplored_nodes.at(j), root, organism, true);
+    		PruneAndExtraction(unexplored_nodes.at(j), root, organism, temp_connections, true);
+    		for (int k = 0; k < temp_connections.size(); k++){
+    			if (temp_connections[k]->weight > connection_threshold){
+    				if (!(temp_connections[k]->target)->CheckInputNode(temp_connections[k]->source)){
+	    				(temp_connections[k]->target)->AddInputToNode(temp_connections[k]->source);
+		    			hidden_nodes.push_back(temp_connections[k]->target);
+
+		    			Connection n_connection = new Connection(c_count++, temp_connections[j]->source, temp_connections[j]->target, temp_connections[j]->weight);
+	    				substrate->connections.push_back(n_connection);
+	    			}
+    			}
+    		}
+    	}
+    	temp.clear();
+    	for (int j = 0; j < hidden_nodes.size(); j++){
+    		vector <SpatialNode *>::iterator it;
+    		it = find(unexplored_nodes.begin(), unexplored_nodes.end(), hidden_nodes.at(j));
+    		if (it != unexplored_nodes.end())
+    			continue;
+    		temp.push_back(hidden_nodes.at(j));
+    	}
+    }
+    
+    // Hidden to output connections
+    for (int i = 0; i < output_count; i++){
+    	root = new QuadPoint(0, 0, 1, 1);
+    	temp_connections.clear();
+    	DivideInitialize(output_nodes.at(i), root, organism, false);
+    	PruneAndExtraction(output_nodes.at(i), root, organism, temp_connections, false);
+
+    	for (int j = 0; j < temp_connections.size(); j++){
+    		if (temp_connections[j]->weight > connection_threshold){ // REVIEW THIS THRESHOLD
+    			if (!(temp_connections[j]->target)->CheckInputNode(temp_connections[j]->source)){
+    				vector <SpatialNode *>::iterator it;
+    				it = find(hidden_nodes.begin(), hidden_nodes.end(), temp_connections[j]->source);
+    				if (it != hidden_nodes.end()){
+    					(temp_connections[j]->target)->AddInputToNode(temp_connections[j]->source);
+
+    					Connection n_connection = new Connection(c_count++, temp_connections[j]->source, temp_connections[j]->target, temp_connections[j]->weight);
+	    				substrate->connections.push_back(n_connection);
+    				}
+    			}
+    		}    			
+    	}
+    }
+
+    Clean_Net(substrate->connections);
+    return true; // Add cases which the phenotype construction could fail
 }
 
 bool ESHyperNeat::createSubstrateConnections(char * path)
@@ -349,7 +388,7 @@ void ESHyperNeat::DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_E
 	}
 }
 
-void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing){
+void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection *> temp_connections, const bool &outgoing){
 	if (root->children[0] == NULL)
     {
         return;
@@ -361,7 +400,7 @@ void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic
         {
             if (Variance(root->children[i]) > VarianceThreshold) // ADD PARAMETERS
             {
-                PruneExpress(node, root->children[i], organism, connections, outgoing);
+                PruneAndExtraction(node, root->children[i], organism, temp_connections, outgoing);
             }
 
             // Band Pruning phase.
@@ -419,16 +458,18 @@ void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic
                 	n_coordinates.insert(n_coordinates.end(), root->children.at(i)->x, root->children.at(i)->y);
 
                 	SpatialNode *n_node = new SpatialNode(1, n_coordinates, substrate->node_function);
-                	substrate->hidden_nodes.push_back(n_node);
+                	TempConnection *t_connection;
 
                     if (outgoing)
                     {
-                        n_node->AddInputToNode(node, root->children[i]->weight);
+                        t_connection = new TempConnection(node, n_node, root->children[i]->weight);
                     }
                     else
                     {
-                        node->AddInputToNode(n_node, root->children[i]->weight);
+                        t_connection = new TempConnection(n_node, node, root->children[i]->weight);
                     }
+
+                    temp_connections.push_back(t_connection);
                 }
             }
         }
@@ -464,6 +505,55 @@ double ESHyperNeat::QuadPointVariance(QuadPoint *point){
 	}
 
 	return sum / point->children.size();
+}
+
+// Removes all the dangling connections. This still leaves the nodes though,
+void ESHyperNeat::Clean_Net(vector <Connection> *t_connections)
+{
+    bool loose_connections = true;
+    while (loose_connections)
+    {
+        // Make sure inputs and outputs are covered.
+        for (int i = 0; i < t_connections.size(); i++)
+        {
+        	if(t_connections.at(i)->source_node->node_type == 0){
+        		t_connections.at(i)->source_node->outgoing = true;
+        		t_connections.at(i)->source_node->incoming = true;
+        	}
+
+        	if(t_connections.at(i)->target_node->node_type == 2){
+        		t_connections.at(i)->target_node->outgoing = true;
+        		t_connections.at(i)->target_node->incoming = true;
+        	}
+        }
+
+        // Move on to the nodes.
+        for (int i = 0; i < t_connections.size(); i++)
+        {
+            if (t_connections.at(i)->source_node != t_connections.at(i)->target_node){
+            	t_connections.at(i)->source_node->outgoing = true;
+            	t_connections.at(i)->target_node->incoming = true;
+            }
+
+        }
+
+        loose_connections = false;
+
+        vector <Connection>::iterator itr;
+        for (itr = t_connections.begin(); itr < t_connections.end();){
+        	if (!itr->target_node->outgoing || !itr->source_node->incoming){
+        		itr = connections.erase(itr);
+        		if (!loose_connections)
+                {
+                    loose_connections = true;
+                }
+        	}
+        	else
+            {
+                itr++;
+            }
+        }
+    }
 }
 
 #endif

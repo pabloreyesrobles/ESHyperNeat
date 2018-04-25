@@ -3,6 +3,7 @@
 
 #include <NEAT>
 #include "Substrate.hpp"
+#include "Connection.hpp"
 #include "CPPNInputs.hpp"
 #include <vector>
 #include <string>
@@ -19,6 +20,7 @@ using namespace std;
  * \brief Dedicated to artificial intelligence development in Santa María University.
  */
 namespace ANN_USM{
+
 	/**
 	 * \class ESHyperNeat
 	 * \brief The ESHyperNeat class is used to implement a neuroevolution method called ESHyperNeat.
@@ -111,13 +113,12 @@ namespace ANN_USM{
 
 		/////////////////////////////////////////////
         // Evolvable Substrate HyperNEAT
-        ////////////////////////////////////////////
         
         // Temporal connection between two spatial nodes
         struct TempConnection
         {
-           	SpatialNode * source;
-            SpatialNode * target;
+           	SpatialNode *source;
+            SpatialNode *target;
             double weight;
             
             TempConnection()
@@ -125,7 +126,7 @@ namespace ANN_USM{
             	weight = 0;
             }
             
-            TempConnection(SpatialNode * t_source, SpatialNode * t_target, double t_weight)
+            TempConnection(SpatialNode *t_source, SpatialNode *t_target, double t_weight)
             {
                 source = t_source;
                 target = t_target;
@@ -167,12 +168,11 @@ namespace ANN_USM{
                 children.reserve(4);
             }
             
-            QuadPoint(double t_x, double t_y, double t_width, double t_height, int t_level)
+            QuadPoint(double t_x, double t_y, double t_width, int t_level)
             {
                 x = t_x;
                 y = t_y;
                 width = t_width;
-                height = t_height;
                 level = t_level;
                 weight = 0.0;
                 variance = 0.0;
@@ -188,16 +188,13 @@ namespace ANN_USM{
         
         void DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing);
         
-        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing);
-        
-        void CollectValues(std::vector<double> &vals, boost::shared_ptr<QuadPoint> &point);
+        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection *> connections, const bool &outgoing);
 
         double QuadPointMean(QuadPoint *point);
         
         double QuadPointVariance(QuadPoint *point);
         
-        void Clean_Net(std::vector<Connection> &connections, unsigned int input_count,
-                       unsigned int output_count, unsigned int hidden_count);
+        void Clean_Net(vector <Connection> *t_connections, unsigned int input_count, unsigned int output_count, unsigned int hidden_count);
 	};
 }
 #endif

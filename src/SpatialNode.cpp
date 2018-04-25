@@ -71,6 +71,17 @@ void SpatialNode::SetOutputToOutputNode(double * output, int output_id)
 	this->output_id = output_id;
 }
 
+bool SpatialNode::CheckInputNode(SpatialNode *input_node){
+	if(!inputs_nodes.empty()){
+		for (int i = 0; i < inputs_nodes.size(); i++){
+			if (inputs_nodes.at(i) == input_node)
+				return true;
+		}
+	}
+	
+	return false;
+}
+
 void SpatialNode::AddInputToNode(SpatialNode * input_node, double input_weight)
 {
 	if(node_type == 0)
@@ -184,7 +195,7 @@ string SpatialNode::getConnectionString()
 
 bool SpatialNode::operator == (const SpatialNode &node) const
 {
-    return this->node_type == node.node_type && this->coordenates == node.coordenates && this->node_function == node.node_function;
+    return this->node_type == node.node_type && this->coordenates == node.coordenates;
 }
 
 #endif
