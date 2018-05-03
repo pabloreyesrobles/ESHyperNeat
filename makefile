@@ -3,9 +3,9 @@ VPATH = ./src ./headers ./objects
 CC = g++ -O3
 CFLAGS = -g -Wall -fPIC -I./headers 
 LDFLAGS = -lpthread -L. -lneat
-OBJS = ./objects/ESHyperNeat.o ./objects/Substrate.o ./objects/SpatialNode.o ./objects/CPPNInputs.o 
+OBJS = ./objects/ESHyperNeat.o ./objects/Substrate.o ./objects/SpatialNode.o ./objects/CPPNInputs.o ./objects/Connection.o 
 
-all: ESHyperNeat.o Substrate.o SpatialNode.o CPPNInputs.o   	
+all: ESHyperNeat.o Substrate.o SpatialNode.o CPPNInputs.o Connection.o  	
 	
 ESHyperNeat.o: ESHyperNeat.cpp
 	@mkdir -p objects
@@ -26,6 +26,11 @@ CPPNInputs.o: CPPNInputs.cpp
 	@mkdir -p objects
 	@echo "Compiling CPPNInputs.cpp to CPPNInputs.o"
 	@$(CC) $(CFLAGS) -c ./src/CPPNInputs.cpp  -o ./objects/CPPNInputs.o
+
+Connection.o: Connection.cpp 
+	@mkdir -p objects
+	@echo "Compiling Connection.cpp to Connection.o"
+	@$(CC) $(CFLAGS) -c ./src/Connection.cpp  -o ./objects/Connection.o
 
 clean:
 	@rm -f -R ./objects
