@@ -51,7 +51,7 @@ namespace ANN_USM
 
 		bool operator==(Connection const& other) const
 	    {
-	        if ((source_node == other->source_node) && (target_node == other->target_node))
+	        if ((this->source_node == other.source_node) && (this->target_node == other.target_node))
 	            return true;
 	        else
 	            return false;

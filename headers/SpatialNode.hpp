@@ -62,7 +62,7 @@ namespace ANN_USM{
 		double Sigmoid(double input);
 
 		// ESHyperNeat phenotype construction, check node connection
-		bool incoming = false, outgoing = false;
+		bool incoming, outgoing;
 
 	public:
 
@@ -102,7 +102,7 @@ namespace ANN_USM{
 		 * \brief Check if input_node is already connected to node
 		 * \param input_node Node to be checked if already connected
 		 */
-		bool SpatialNode::CheckInputNode(SpatialNode *input_node)
+		bool CheckInputNode(SpatialNode *input_node);
 
 		/**
 		 * \brief Add input to node from other node
@@ -135,6 +135,12 @@ namespace ANN_USM{
 		double GetOuput();
 
 		/**
+		 * \brief Get node function
+		 * \return Node function name
+		 */
+		char *GetNodeFunction();
+
+		/**
 		 * \brief Clear inputs node and weight vector
 		 */
 		void ClearInputs();
@@ -163,11 +169,20 @@ namespace ANN_USM{
 		 */
 		bool ActiveNode();
 
+		bool CheckOutgoing();
+
+		bool CheckIncoming();
+
+		void SetOutgoing(bool t_outgoing);
+
+		void SetIncoming(bool t_incoming);
 		/**
 		 * \brief This function return a string with information of all input conections of this node.
 		 * \return String with information of input conections.
 		 */
 		string getConnectionString();
+
+		bool operator == (const SpatialNode &node) const;
 
 	};
 }

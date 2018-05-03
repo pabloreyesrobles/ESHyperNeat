@@ -14,6 +14,9 @@ SpatialNode::SpatialNode(int node_type, vector <double> coordenates, char *node_
 	this->node_function = new char[size];
 	strncpy(this->node_function, node_function, size);
 
+	this->outgoing = false;
+	this->incoming = false;
+
 	if(!strcmp(node_function,(char *)"SIGMOID"))
 	{
 		NodeFunction = &SpatialNode::Sigmoid;		
@@ -73,7 +76,7 @@ void SpatialNode::SetOutputToOutputNode(double * output, int output_id)
 
 bool SpatialNode::CheckInputNode(SpatialNode *input_node){
 	if(!inputs_nodes.empty()){
-		for (int i = 0; i < inputs_nodes.size(); i++){
+		for (unsigned int i = 0; i < inputs_nodes.size(); i++){
 			if (inputs_nodes.at(i) == input_node)
 				return true;
 		}
@@ -123,6 +126,11 @@ double SpatialNode::GetOuput()
 	return *output;
 }
 
+char *SpatialNode::GetNodeFunction()
+{
+	return node_function;
+}
+
 void SpatialNode::ClearInputs()
 {	
 	inputs_nodes.clear();
@@ -169,6 +177,26 @@ int SpatialNode::GetOutputId()
 bool SpatialNode::ActiveNode()
 {
 	return active;
+}
+
+bool SpatialNode::CheckOutgoing()
+{
+	return outgoing;
+}
+
+bool SpatialNode::CheckIncoming()
+{
+	return incoming;
+}
+
+void SpatialNode::SetOutgoing(bool t_outgoing)
+{
+	this->outgoing = t_outgoing;
+}
+
+void SpatialNode::SetIncoming(bool t_incoming)
+{
+	this->incoming = t_incoming;
 }
 
 double SpatialNode::Sigmoid(double input)

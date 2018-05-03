@@ -28,15 +28,15 @@ namespace ANN_USM
 	 */
 	class Substrate
 	{			
+		char * node_function;
+		
+	public:
 		// Vector of nodes in each layer of each layout in the substrate. There is one layer for each node type.
 		vector <SpatialNode *> input_nodes; 
 		vector <SpatialNode *> hidden_nodes;
 		vector <SpatialNode *> output_nodes;
 
 		vector <Connection *> connections;
-		char * node_function;
-		
-	public:
 
 		vector< double * > inputs;/**< Vector of inputs pointer of Substrate */
 		vector< double * > outputs;/**< Vector of outputs pointer of Substrate */
@@ -65,17 +65,11 @@ namespace ANN_USM
 		char * SJsonDeserialize(char * substrate_info);
 
 		/**
-		 * \brief Get layers number
-		 * \return Substrate layer number
-		 */
-		int GetLayersNumber();
-
-		/**
 		 * \brief Get the node number of a specific layer
 		 * \param layer_num Layer number
 		 * \return Layer node number
 		 */
-		int GetLayerNodesNumber(int layer_num);
+		int GetLayerNodesNumber(vector <SpatialNode *> layer);
 
 		/**
 		 * \brief Get a spatial node of a specific layer and of a specific position in this layer
@@ -83,19 +77,19 @@ namespace ANN_USM
 		 * \param layer_node_num Layer node number
 		 * \return Indicated spatial node pointer
 		 */
-		SpatialNode * GetSpatialNode(int layer_num, int layer_node_num);
+		SpatialNode * GetSpatialNode(vector <SpatialNode *> layer, int layer_node_num);
 
 		/**
 		 * \brief Evaluate spatial node outputs of a specific layer
 		 * \param layer_num Layer number
 		 */
-		void EvaluateSpatialNode(int layer_num);
+		void EvaluateSpatialNode(vector <SpatialNode *> layer);
 
 		/**
 		 * \brief Clear of input vector of all spatial nodes in a specific layer
 		 * \param layer_num Layer number
 		 */
-		void ClearSpatialNodeInputs(int layer_num);
+		void ClearSpatialNodeInputs(vector <SpatialNode *> layer);
 
 		/**
 		 * \brief Allows obtain all final functions of every output node

@@ -12,7 +12,9 @@ Substrate::Substrate(){
 
 }
 Substrate::~Substrate(){
-	vector < vector < SpatialNode * > >().swap(nodes);
+	vector<SpatialNode *>().swap(input_nodes);
+	vector<SpatialNode *>().swap(hidden_nodes);
+	vector<SpatialNode *>().swap(output_nodes);
 }
 char * Substrate::SJsonDeserialize(char * substrate_info)
 {
@@ -71,7 +73,6 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 			}
 			if(!strcmp(substrate_info,(char *)"nodes_info"))
 			{
-				vector < SpatialNode * > aux1;
 				for(int j = 0; j < n_nodes; j++)
 				{
 					int node_type;
@@ -89,17 +90,16 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 						coordenates.push_back(atof(substrate_info));
 					}			
 
-					aux1.push_back(new SpatialNode(node_type, coordenates, node_function));
-
-					if(node_type == 0)
-						aux1.at(j)->SetInputToInputNode(inputs.at(IO_id), IO_id);
-					else
-						if(node_type == 2)
-							aux1.at(j)->SetOutputToOutputNode(outputs.at(IO_id), IO_id);
+					if(node_type == 0){
+						input_nodes.push_back(new SpatialNode(node_type, coordenates, node_function));
+						input_nodes.at(j)->SetInputToInputNode(inputs.at(IO_id), IO_id);
+					}
+					else if(node_type == 2){
+						output_nodes.push_back(new SpatialNode(node_type, coordenates, node_function));
+						output_nodes.at(j)->SetOutputToOutputNode(outputs.at(IO_id), IO_id);
+					}
 
 				}
-				if (i == 0) input_nodes.push_back(aux1);
-				else output_nodes.push_back(aux1);
 				substrate_info = strtok(NULL, delimeters);
 			}
 		}
@@ -113,13 +113,6 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 	
 	return substrate_info;
 }
-
-// Eliminar
-int Substrate::GetLayersNumber()
-{
-	return (int)nodes.size();
-}
-///////////
 
 int Substrate::GetLayerNodesNumber(vector <SpatialNode *> layer)
 {
@@ -185,7 +178,7 @@ string Substrate::getSubstrateConnectionString()
 {
 	stringstream connections;
 
-	connections << "Layer " << i << endl << "{" << endl;
+	connections << "Layer 0" << endl << "{" << endl;
 
 	for(int j = 0; j < (int)input_nodes.size(); j++)
 	{
@@ -194,6 +187,10 @@ string Substrate::getSubstrateConnectionString()
 		connections << input_nodes.at(j)->getConnectionString();
 		connections << "\t}" << endl;
 	}
+
+	connections << "}" << endl;
+
+	connections << "Layer 1" << endl << "{" << endl;
 
 	if (((int)hidden_nodes.size()))
 	{
@@ -205,6 +202,10 @@ string Substrate::getSubstrateConnectionString()
 			connections << "\t}" << endl;
 		}
 	}
+
+	connections << "}" << endl;
+
+	connections << "Layer 2" << endl << "{" << endl;
 
 	for(int j = 0; j < (int)output_nodes.size(); j++)
 	{

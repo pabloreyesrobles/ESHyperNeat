@@ -1,7 +1,7 @@
 #ifndef CONNECTION_CPP
 #define CONNECTION_CPP
 
-#include "Conection.hpp"
+#include "Connection.hpp"
 using namespace ANN_USM;
 
 Connection::Connection(){

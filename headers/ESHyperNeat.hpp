@@ -6,13 +6,24 @@
 #include "Connection.hpp"
 #include "CPPNInputs.hpp"
 #include <vector>
+#include <queue>
 #include <string>
 #include <string.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
-#define HYPERNEAT_DATANUMBER 5
+#define ESHYPERNEAT_DATANUMBER 5
+
+//ESHyperNeat parameters. Add to configuration file
+
+#define DivisionThreshold	0.5
+#define VarianceThreshold	0.03
+#define BandThreshold		0.3
+#define InitialDepth		2
+#define MaxDepth			3
+#define IterationLevel		1
 
 using namespace std;
 /**
@@ -194,7 +205,7 @@ namespace ANN_USM{
         
         double QuadPointVariance(QuadPoint *point);
         
-        void Clean_Net(vector <Connection> *t_connections, unsigned int input_count, unsigned int output_count, unsigned int hidden_count);
+        void Clean_Net(vector <Connection *> t_connections);
 	};
 }
 #endif
