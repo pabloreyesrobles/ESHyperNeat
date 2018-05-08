@@ -561,9 +561,9 @@ void ESHyperNeat::Clean_Net(vector <Connection *> t_connections)
 
     // Finally remove the nodes not connected
     vector <SpatialNode *>::iterator itr;
-    for (itr = hidden_nodes.begin(); itr != hidden_nodes.end();){
+    for (itr = substrate->hidden_nodes.begin(); itr != hidden_nodes.end();){
     	if (!(*itr)->CheckOutgoing() || !(*itr)->CheckIncoming())
-    		itr = hidden_nodes.erase(itr);
+    		itr = substrate->hidden_nodes.erase(itr);
     }
 }
 

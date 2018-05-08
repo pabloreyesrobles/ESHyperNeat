@@ -113,6 +113,8 @@ namespace ANN_USM{
 		 */
 		void AddInputToNode(SpatialNode * input_node, double input_weight);
 
+		void ClearActivation();
+
 		/**
 		 * \brief Perform an activation over the inputs in the node
 		 */

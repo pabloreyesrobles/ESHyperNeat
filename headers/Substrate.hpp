@@ -96,6 +96,14 @@ namespace ANN_USM
 		 */
 		void ClearSpatialNodeInputs(vector <SpatialNode *> layer);
 
+		void ClearSubstrate();
+
+		void UpdateInputs();
+
+		void Flush();
+
+		vector <double> GetOutputs();
+
 		/**
 		 * \brief Allows obtain all final functions of every output node
 		 * \return Vector with all final output functions in string format
