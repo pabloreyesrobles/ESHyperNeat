@@ -107,7 +107,7 @@ void ESHyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
 {
 	//////////////////////// ESHyperNeat ///////////////////////////////
-	// Considerar y trabajar en los parámetros del algoritmo:
+	// Review the parameters:
 	// initialDepth, maxDepth, varianceThreshold, bandThreshold,
 	// iterationLevel, divisionThreshold
 
@@ -360,7 +360,7 @@ void ESHyperNeat::DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_E
 		p->children.push_back(new QuadPoint(p->x + p->width/2, p->y - p->width/2, p->width/2, p->level + 1));
 		p->children.push_back(new QuadPoint(p->x + p->width/2, p->y + p->width/2, p->width/2, p->level + 1));
 
-		for (int i = 0; p->children.size(); i++){
+		for (unsigned int i = 0; p->children.size(); i++){
 			vector <double> t_coordenates = node->GetCoordenates();
 
 			if (outgoing) {

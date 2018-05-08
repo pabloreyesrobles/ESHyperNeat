@@ -1,11 +1,11 @@
 CC = g++ -O3 -std=c++11
-LDFLAGS = -lpthread -L. -lhyperneat -lneat
+LDFLAGS = -lpthread -L. -leshyperneat -lneat
 
 all:
 	$(CC) test.cpp -o TEST $(LDFLAGS)
 
 run:
-	./TEST
+	./TEST eshyperneat_config.json user_def genetic_encoding
 
 clean:
 	rm -f TEST

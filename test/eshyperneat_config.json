@@ -2,7 +2,7 @@
 	"n_AditionalCPPNInputs": 1,
 	"AditionalCPPNInputs":
 	[
-		"EUCLIDIANDISTANCE"
+		"BIAS", 0.25
 	],
 	"connection_threshold": 0.00833,	
 	"max_connection_weight": 0.25,
@@ -13,23 +13,19 @@
 		"Rows":
 		[
 			{
-				"n_nodes": 4,
+				"n_nodes": 3,
 				"nodes_info":
 				[
 					[ 0, 0, -1, 1 ],
-					[ 0, 1, -0.333, 1 ],
-					[ 0, 2, 0.333, 1 ],
-					[ 0, 3, 1, 1 ]
+					[ 0, 1, 0, 1 ],
+					[ 0, 2, 1, 1 ]
 				]
 			},
 			{
-				"n_nodes": 4,
+				"n_nodes": 1,
 				"nodes_info":
 				[
-					[ 2, 0, -1, -1 ],
-					[ 2, 1, -0.333, -1 ],
-					[ 2, 2, 0.333, -1 ],
-					[ 2, 3, 1, -1 ]
+					[ 2, 0, 0, -1 ]
 				]
 			}
 		]
