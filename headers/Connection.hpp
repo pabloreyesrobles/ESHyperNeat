@@ -27,6 +27,7 @@ namespace ANN_USM
 		SpatialNode *source_node;
 		SpatialNode *target_node;
 		double weight;
+		double signal;
 		bool recurrent_flag;
 
 		/**

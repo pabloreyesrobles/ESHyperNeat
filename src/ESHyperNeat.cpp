@@ -104,12 +104,14 @@ void ESHyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 	clog << "HYPERNEAT:\tSuccessful serialization" << endl;
 }
 
-bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding * organism)
+bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
 {
 	//////////////////////// ESHyperNeat ///////////////////////////////
 	// Considerar y trabajar en los parámetros del algoritmo:
 	// initialDepth, maxDepth, varianceThreshold, bandThreshold,
 	// iterationLevel, divisionThreshold
+
+	substrate->CleanSubstrate();
 
 	unsigned int input_count = substrate->input_nodes.size();
 	unsigned int output_count = substrate->output_nodes.size();
@@ -231,6 +233,8 @@ bool ESHyperNeat::evaluateSubstrateConnections()
 
 	return true;
 }
+
+vector <double> 
 
 void ESHyperNeat::getHyperNeatOutputFunctions(Genetic_Encoding * organism)
 {
@@ -555,6 +559,13 @@ void ESHyperNeat::Clean_Net(vector <Connection *> t_connections)
                 itr++;
             }
         }
+    }
+
+    // Finally remove the nodes not connected
+    vector <SpatialNode *>::iterator itr;
+    for (itr = hidden_nodes.begin(); itr != hidden_nodes.end();){
+    	if (!(*itr)->CheckOutgoing() || !(*itr)->CheckIncoming())
+    		itr = hidden_nodes.erase(itr);
     }
 }
 

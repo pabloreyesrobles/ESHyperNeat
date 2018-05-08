@@ -65,6 +65,8 @@ namespace ANN_USM{
 		bool incoming, outgoing;
 
 	public:
+		double activation_sum;
+		double activation_output; // maybe just output
 
 		/**
 		 * \brief Constructor with parameters
@@ -110,6 +112,11 @@ namespace ANN_USM{
 		 * \param input_weight Weight associated to connection
 		 */
 		void AddInputToNode(SpatialNode * input_node, double input_weight);
+
+		/**
+		 * \brief Perform an activation over the inputs in the node
+		 */
+		void ActivateNode();
 
 		/**
 		 * \brief Calcule of node output value

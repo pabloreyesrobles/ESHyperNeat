@@ -17,6 +17,9 @@ SpatialNode::SpatialNode(int node_type, vector <double> coordenates, char *node_
 	this->outgoing = false;
 	this->incoming = false;
 
+	this->activation_output = 0;
+	this->activation_sum = 0;
+
 	if(!strcmp(node_function,(char *)"SIGMOID"))
 	{
 		NodeFunction = &SpatialNode::Sigmoid;		
@@ -60,6 +63,8 @@ void SpatialNode::SetInputToInputNode(double * input, int input_id)
 
 	this->input = input;
 	this->input_id = input_id;
+
+	activation_output = (this->*NodeFunction) *input;
 }
 
 void SpatialNode::SetOutputToOutputNode(double * output, int output_id)
@@ -99,16 +104,14 @@ void SpatialNode::AddInputToNode(SpatialNode * input_node, double input_weight)
 	inputs_weight.push_back(input_weight);
 }
 
+void SpatialNode::ActivateNode()
+{
+	activation_output = (this->*NodeFunction)(activation_sum);
+}
+
 void SpatialNode::OutputCalcule()
 {
-	double aux = (node_type == 0) ? *input : 0.0;
-
-	for(int i = 0; i < (int)inputs_nodes.size(); i++)
-	{
-		aux += (inputs_nodes.at(i)->GetOuput())*inputs_weight.at(i);
-	}
-
-	*output = (this->*NodeFunction)(aux);
+	*output = (this->*NodeFunction)(activation_sum);
 }
 
 vector < double > SpatialNode::GetCoordenates()
@@ -123,7 +126,8 @@ int SpatialNode::GetNodeType()
 
 double SpatialNode::GetOuput()
 {
-	return *output;
+	//return *output;
+	return activation_output;
 }
 
 char *SpatialNode::GetNodeFunction()

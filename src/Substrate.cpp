@@ -131,6 +131,29 @@ SpatialNode * Substrate::GetSpatialNode(vector <SpatialNode *> layer, int node_n
 	return layer.at(node_num);
 }
 
+void Substrate::Activate()
+{
+	// Iterate over connections in order to obtain its output signal
+	for (unsigned int i = 0; i < connections.size(); i++){
+		connections[i]->signal = connections[i]->source_node->activation_output * connections[i]->weight;
+	}
+
+	// Iterate again over connections passing the output signal to target node sum
+	for (unsigned int i = 0; i < connections.size(); i++){
+		connections[i]->target_node->activation_sum += connections[i]->signal;
+	}
+
+	// Activate hidden nodes with the new input
+	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
+		hidden_nodes[i]->ActivateNode();
+	}
+
+	// Activate output nodes with the new input
+	for (unsigned int i = 0; i < output_nodes.size(); i++){
+		output_nodes[i]->ActivateNode();
+	}
+}
+
 void Substrate::EvaluateSpatialNode(vector <SpatialNode *> layer)
 {
 	for(int i = 0; i < (int)layer.size(); i++){
@@ -143,6 +166,26 @@ void Substrate::ClearSpatialNodeInputs(vector <SpatialNode *> layer)
 	for(int i = 0; i < (int)layer.size(); i++){
 		layer.at(i)->ClearInputs();
 	}
+}
+
+void Substrate::ClearSubstrate()
+{
+	connections.clear();
+
+	ClearSpatialNodeInputs(input_nodes);
+	ClearSpatialNodeInputs(hidden_nodes);
+	ClearSpatialNodeInputs(output_nodes);
+
+	hidden_nodes.clear();
+}
+
+vector <double> Substrate::GetOutputs(){
+	vector <double> temp;
+	for (unsigned int i = 0; i < output_nodes.size(); i++){
+		temp.push_back(output_nodes[i]->GetOutput());
+	}
+
+	return temp;
 }
 
 vector < string > Substrate::GetSubstrateOutputFunctions()

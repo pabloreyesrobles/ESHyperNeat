@@ -14,6 +14,7 @@ Connection::Connection(unsigned int t_id, SpatialNode *t_source, SpatialNode *t_
 	this->target_node = t_target;
 	this->weight = t_weight;
 	this->recurrent_flag = t_recurrent;
+	this->signal = 0;
 }
 
 Connection::~Connection(){

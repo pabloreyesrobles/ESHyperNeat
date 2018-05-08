@@ -80,6 +80,11 @@ namespace ANN_USM
 		SpatialNode * GetSpatialNode(vector <SpatialNode *> layer, int layer_node_num);
 
 		/**
+		 * \brief Perform an activation of the entire substrate. Should be done many times as layers in the substrate.
+		*/
+		void Activate();
+
+		/**
 		 * \brief Evaluate spatial node outputs of a specific layer
 		 * \param layer_num Layer number
 		 */

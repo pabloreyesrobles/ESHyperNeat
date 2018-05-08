@@ -1,10 +1,10 @@
 #include <vector>
 #include <stdlib.h>
 #include <iostream>
-#include <HYPERNEAT>
+#include <ESHYPERNEAT>
 
-#define INPUTS 4
-#define OUTPUTS 4
+#define INPUTS 3
+#define OUTPUTS 1
 #define ITER 20
 
 using namespace std;
@@ -14,31 +14,44 @@ int main()
 {
 	srand (time(0));
 	
-	vector< double * > inputVector;
-	vector< double * > outputVector;
+	vector<double *> inputVector;
+	vector<double *> outputVector;
 
-	for(int i = 0; i < INPUTS; i++)
-	{
-		double * input = new double((100.0 - rand()%201)/100.0);
-		double * output = new double(0.0);
-		inputVector.push_back(input);
-		outputVector.push_back(output);
-	}
+	inputVector.reserve(3);
+	outputVector.reserve(1);
 
-	HyperNeat hyperneat = HyperNeat(inputVector, outputVector, (char*)"hyperneat_config.json");
+	*outputVector[0] = 0;
 
-	hyperneat.createSubstrateConnections((char*)"genetic_encoding");
+	Population *cppn_neat = new Population(argv[2], argv[3], (char*)"NEAT", (char*)"./NEAT_organisms/");
 
-	hyperneat.evaluateSubstrateConnections();
+	Genetic_Encoding *organism = new Genetic_Encoding();
+	organism->load((char *)"genetic_encoding");
+
+	ESHyperNeat eshyperneat = ESHyperNeat(inputVector, outputVector, (char *)"eshyperneat_config.json");
+	double error = 0;
 
 	for(int i = 0; i < ITER; i++)
 	{
-		hyperneat.evaluateSubstrateConnections();
+		eshyperneat.createSubstrateConnections(organism);
 
-		for(int j  = 0; j < INPUT; j++)
-		{
-			*inputVector.at(j) = *outputVector.at(j);
-		}
+		*inputVector[0] = 1;
+		*inputVector[1] = 0;
+		*inputVector[2] = 1;
+
+		eshyperneat.evaluateSubstrateConnections();
+		
+
+		*inputVector[0] = 0;
+		*inputVector[1] = 1;
+		*inputVector[2] = 1;
+
+		*inputVector[0] = 0;
+		*inputVector[1] = 0;
+		*inputVector[2] = 1;
+
+		*inputVector[0] = 1;
+		*inputVector[1] = 1;
+		*inputVector[2] = 1;
 	}
 
 	clog << endl;
