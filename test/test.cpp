@@ -1,75 +1,120 @@
 #include <vector>
 #include <stdlib.h>
 #include <iostream>
+#include <cmath>
 #include <ESHYPERNEAT>
 
 #define INPUTS 3
 #define OUTPUTS 1
-#define ITER 20
 
 using namespace std;
 using namespace ANN_USM;
+
+vector<double *> inputVector;
+vector<double *> outputVector;
+
+Population *cppn_neat;
+
+ESHyperNeat eshyperneat;
 
 int main()
 {
 	srand (time(0));
 	
-	vector<double *> inputVector;
-	vector<double *> outputVector;
+	inputVector.reserve(INPUTS);
+	outputVector.reserve(OUTPUTS);
 
-	inputVector.reserve(3);
-	outputVector.reserve(1);
-
-	*outputVector[0] = 0;
-
-	Population *cppn_neat = new Population(argv[2], argv[3], (char*)"NEAT", (char*)"./NEAT_organisms/");
-
-	Genetic_Encoding *organism = new Genetic_Encoding();
-	organism->load((char *)"genetic_encoding");
-
-	ESHyperNeat eshyperneat = ESHyperNeat(inputVector, outputVector, (char *)"eshyperneat_config.json");
-	double error = 0;
-
-	for(int i = 0; i < ITER; i++)
-	{
-		eshyperneat.createSubstrateConnections(organism);
-
-		*inputVector[0] = 1;
-		*inputVector[1] = 0;
-		*inputVector[2] = 1;
-
-		eshyperneat.evaluateSubstrateConnections();
-		
-
-		*inputVector[0] = 0;
-		*inputVector[1] = 1;
-		*inputVector[2] = 1;
-
-		*inputVector[0] = 0;
-		*inputVector[1] = 0;
-		*inputVector[2] = 1;
-
-		*inputVector[0] = 1;
-		*inputVector[1] = 1;
-		*inputVector[2] = 1;
+	for (unsigned int i; i < INPUTS, i++){
+		*inputVector[i] = 0.0;
 	}
 
-	clog << endl;
+	for (unsigned int i; i < OUTPUTS, i++){
+		*outputVector[i] = 0.0;
+	}
 
-	for(int i = 0; i < (int)inputVector.size(); i++)
-		clog << "INPUT " << i << ":\t" << *inputVector.at(i) << endl;
+	*cppn_neat = new Population(argv[2], argv[3], (char*)"NEAT", (char*)"./NEAT_organisms/");
 
-	clog << endl;
+	eshyperneat = ESHyperNeat(inputVector, outputVector, (char *)"eshyperneat_config.json");
 
-	for(int i = 0; i < (int)outputVector.size(); i++)
-		clog << "OUTPUT " << i << ":\t" << *outputVector.at(i) << endl;
+	vector <vector <double>> fitnesses;
+	double fitness;
 
-	clog << endl;
+	for(int i = 0; i < cppn_neat->GENERATIONS; i++)
+	{
+		for (int j = 0; j < cppn_neat->POPULATION_MAX; j++)
+		{
+			// Improve this
+			if(!eshyperneat.createSubstrateConnections(&cppn_neat->organisms[j]))
+				continue;
+			clog << "---------------------------------------------" << endl;
+			clog << "Generation: " << i << ", Population: " << j << endl;
+			fitness = evaluate_xor();
+			fitnesses[i].pushback(fitness);
+			if (fitness > 15.0){
+				break;
+			}
+		}
+		cppn_neat->epoch();
+	}
 
-	hyperneat.getHyperNeatOutputFunctions((char*)"genetic_encoding");
+	eshyperneat.getHyperNeatOutputFunctions((char*)"genetic_encoding");
 
-	hyperneat.printConnectionFile((char*)"genetic_encoding");
+	eshyperneat.printConnectionFile((char*)"genetic_encoding");
 
 	
 	return 0;
+}
+
+double evaluate_xor(){
+
+	double error = 0;
+	vector <double> net_output;
+
+	eshyperneat.substrate->Flush();
+
+	*inputVector[0] = 1;
+	*inputVector[1] = 0;
+	*inputVector[2] = 1;
+
+	eshyperneat.substrate->UpdateInputs();
+	eshyperneat.evaluateSubstrateConnections();
+	net_output = eshyperneat.substrate->GetOutputs();
+	error += abs(1 - net_output[0]);
+
+	clog << "Input: 1 0 - Output: " << net_output[0] << endl;
+	
+	*inputVector[0] = 0;
+	*inputVector[1] = 1;
+	*inputVector[2] = 1;
+
+	eshyperneat.substrate->UpdateInputs();
+	eshyperneat.evaluateSubstrateConnections();
+	net_output = eshyperneat.substrate->GetOutputs();
+	error += abs(1 - net_output[0]);
+
+	clog << "Input: 0 1 - Output: " << net_output[0] << endl;
+
+	*inputVector[0] = 0;
+	*inputVector[1] = 0;
+	*inputVector[2] = 1;
+
+	eshyperneat.substrate->UpdateInputs();
+	eshyperneat.evaluateSubstrateConnections();
+	net_output = eshyperneat.substrate->GetOutputs();
+	error += abs(0 - net_output[0]);
+
+	clog << "Input: 0 0 - Output: " << net_output[0] << endl;
+
+	*inputVector[0] = 1;
+	*inputVector[1] = 1;
+	*inputVector[2] = 1;
+
+	eshyperneat.substrate->UpdateInputs();
+	eshyperneat.evaluateSubstrateConnections();
+	net_output = eshyperneat.substrate->GetOutputs();
+	error += abs(0 - net_output[0]);
+
+	clog << "Input: 1 1 - Output: " << net_output[0] << endl;
+
+	return pow(4 - error, 2);
 }

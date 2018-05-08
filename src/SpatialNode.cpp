@@ -64,7 +64,7 @@ void SpatialNode::SetInputToInputNode(double * input, int input_id)
 	this->input = input;
 	this->input_id = input_id;
 
-	activation_output = (this->*NodeFunction) *input;
+	activation_sum = *input;
 }
 
 void SpatialNode::SetOutputToOutputNode(double * output, int output_id)
@@ -102,6 +102,13 @@ void SpatialNode::AddInputToNode(SpatialNode * input_node, double input_weight)
 
 	inputs_nodes.push_back(input_node);
 	inputs_weight.push_back(input_weight);
+}
+
+void SpatialNode::ClearActivation()
+{
+	*output = 0; // Looking to remove this
+	activation_output = 0;
+	activation_sum = 0;
 }
 
 void SpatialNode::ActivateNode()

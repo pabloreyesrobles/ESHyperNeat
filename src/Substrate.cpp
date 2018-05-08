@@ -8,6 +8,7 @@ Substrate::Substrate(vector < double * > inputs, vector < double * > outputs){
 	this->inputs = inputs;
 	this->outputs = outputs;	
 }
+
 Substrate::Substrate(){
 
 }
@@ -16,6 +17,7 @@ Substrate::~Substrate(){
 	vector<SpatialNode *>().swap(hidden_nodes);
 	vector<SpatialNode *>().swap(output_nodes);
 }
+
 char * Substrate::SJsonDeserialize(char * substrate_info)
 {
 	const char delimeters[] = "{\"\t\n:,[ ]}";
@@ -179,7 +181,31 @@ void Substrate::ClearSubstrate()
 	hidden_nodes.clear();
 }
 
-vector <double> Substrate::GetOutputs(){
+void Substrate::UpdateInputs(){
+	for (unsigned int i = 0; i < input_nodes.size(); i++){
+		input_nodes[i]->activation_sum = *inputs[i];
+		input_nodes[i]->ActivateNode();
+	}
+}
+
+void Substrate::Flush()
+{
+	for (unsigned int i = 0; i < input_nodes.size(); i++){
+		input_nodes[i]->ClearActivation();
+	}
+
+	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
+		hidden_nodes[i]->ClearActivation();
+	}
+
+	for (unsigned int i = 0; i < output_nodes.size(); i++){
+		output_nodes[i]->ClearActivation();
+	}
+
+}
+
+vector <double> Substrate::GetOutputs()
+{
 	vector <double> temp;
 	for (unsigned int i = 0; i < output_nodes.size(); i++){
 		temp.push_back(output_nodes[i]->GetOutput());

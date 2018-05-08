@@ -227,14 +227,12 @@ bool ESHyperNeat::evaluateSubstrateConnections()
 		return false;
 	}
 
-	substrate->EvaluateSpatialNode(substrate->input_nodes);
-	substrate->EvaluateSpatialNode(substrate->hidden_nodes);
-	substrate->EvaluateSpatialNode(substrate->output_nodes);
+	// This should be as long as many layers the substrate have. Needs improvement
+	for (unsigned int i = 0; i < 3; i++)
+		substrate->Activate();
 
 	return true;
 }
-
-vector <double> 
 
 void ESHyperNeat::getHyperNeatOutputFunctions(Genetic_Encoding * organism)
 {
