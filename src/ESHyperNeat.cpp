@@ -111,7 +111,7 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
 	// initialDepth, maxDepth, varianceThreshold, bandThreshold,
 	// iterationLevel, divisionThreshold
 
-	substrate->CleanSubstrate();
+	substrate->ClearSubstrate();
 
 	unsigned int input_count = substrate->input_nodes.size();
 	unsigned int output_count = substrate->output_nodes.size();
@@ -561,7 +561,7 @@ void ESHyperNeat::Clean_Net(vector <Connection *> t_connections)
 
     // Finally remove the nodes not connected
     vector <SpatialNode *>::iterator itr;
-    for (itr = substrate->hidden_nodes.begin(); itr != hidden_nodes.end();){
+    for (itr = substrate->hidden_nodes.begin(); itr != substrate->hidden_nodes.end();){
     	if (!(*itr)->CheckOutgoing() || !(*itr)->CheckIncoming())
     		itr = substrate->hidden_nodes.erase(itr);
     }
