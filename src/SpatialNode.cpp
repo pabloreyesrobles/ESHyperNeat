@@ -131,7 +131,7 @@ int SpatialNode::GetNodeType()
 	return node_type;
 }
 
-double SpatialNode::GetOuput()
+double SpatialNode::GetOutput()
 {
 	//return *output;
 	return activation_output;

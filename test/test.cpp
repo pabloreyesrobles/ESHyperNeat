@@ -10,46 +10,60 @@
 using namespace std;
 using namespace ANN_USM;
 
-vector<double *> inputVector;
-vector<double *> outputVector;
+vector <double *> inputVector;
+vector <double *> outputVector;
 
 Population *cppn_neat;
 
-ESHyperNeat eshyperneat;
+ESHyperNeat *eshyperneat;
 
-int main()
+double evaluate_xor();
+
+int main(int argc, char *argv[])
 {
+	clog << "Initializing..." << endl;
 	srand (time(0));
 	
-	inputVector.reserve(INPUTS);
-	outputVector.reserve(OUTPUTS);
-
-	for (unsigned int i; i < INPUTS, i++){
-		*inputVector[i] = 0.0;
+	clog << "Initializing vectors:" << endl;
+	
+	for (unsigned int i = 0; i < INPUTS; i++){
+		inputVector.push_back(new double);
 	}
 
-	for (unsigned int i; i < OUTPUTS, i++){
-		*outputVector[i] = 0.0;
+	clog << "Input vectors initialized" << endl;
+
+	for (unsigned int i = 0; i < OUTPUTS; i++){
+		outputVector.push_back(new double);
 	}
 
-	*cppn_neat = new Population(argv[2], argv[3], (char*)"NEAT", (char*)"./NEAT_organisms/");
+	clog << "Output vectors initialized" << endl;
 
-	eshyperneat = ESHyperNeat(inputVector, outputVector, (char *)"eshyperneat_config.json");
+	eshyperneat = new ESHyperNeat(inputVector, outputVector, (char *)"eshyperneat_config.json");
+	clog << "ESHyperNeat initialized" << endl;
+
+	cppn_neat = new Population((char*)"user_def", (char*)"genetic_encoding", (char*)"NEAT", (char*)"./NEAT_organisms/");
+	clog << "cppn_neat initialized" << endl;
+
+	
 
 	vector <vector <double>> fitnesses;
 	double fitness;
 
+	clog << "Initialized!" << endl;
+
 	for(int i = 0; i < cppn_neat->GENERATIONS; i++)
 	{
+		clog << "Running generation: " << i + 1 << " - ";
 		for (int j = 0; j < cppn_neat->POPULATION_MAX; j++)
 		{
+			clog << "population: " << j + 1 << endl;
 			// Improve this
-			if(!eshyperneat.createSubstrateConnections(&cppn_neat->organisms[j]))
+			if(!eshyperneat->createSubstrateConnections(&(cppn_neat->organisms[j])))
 				continue;
 			clog << "---------------------------------------------" << endl;
 			clog << "Generation: " << i << ", Population: " << j << endl;
 			fitness = evaluate_xor();
-			fitnesses[i].pushback(fitness);
+			fitnesses[i].push_back(fitness);
 			if (fitness > 15.0){
 				break;
 			}
@@ -57,9 +71,9 @@ int main()
 		cppn_neat->epoch();
 	}
 
-	eshyperneat.getHyperNeatOutputFunctions((char*)"genetic_encoding");
+	eshyperneat->getHyperNeatOutputFunctions((char*)"genetic_encoding");
 
-	eshyperneat.printConnectionFile((char*)"genetic_encoding");
+	eshyperneat->printConnectionFile((char*)"genetic_encoding");
 
 	
 	return 0;
@@ -70,15 +84,15 @@ double evaluate_xor(){
 	double error = 0;
 	vector <double> net_output;
 
-	eshyperneat.substrate->Flush();
+	eshyperneat->substrate->Flush();
 
 	*inputVector[0] = 1;
 	*inputVector[1] = 0;
 	*inputVector[2] = 1;
 
-	eshyperneat.substrate->UpdateInputs();
-	eshyperneat.evaluateSubstrateConnections();
-	net_output = eshyperneat.substrate->GetOutputs();
+	eshyperneat->substrate->UpdateInputs();
+	eshyperneat->evaluateSubstrateConnections();
+	net_output = eshyperneat->substrate->GetOutputs();
 	error += abs(1 - net_output[0]);
 
 	clog << "Input: 1 0 - Output: " << net_output[0] << endl;
@@ -87,9 +101,9 @@ double evaluate_xor(){
 	*inputVector[1] = 1;
 	*inputVector[2] = 1;
 
-	eshyperneat.substrate->UpdateInputs();
-	eshyperneat.evaluateSubstrateConnections();
-	net_output = eshyperneat.substrate->GetOutputs();
+	eshyperneat->substrate->UpdateInputs();
+	eshyperneat->evaluateSubstrateConnections();
+	net_output = eshyperneat->substrate->GetOutputs();
 	error += abs(1 - net_output[0]);
 
 	clog << "Input: 0 1 - Output: " << net_output[0] << endl;
@@ -98,9 +112,9 @@ double evaluate_xor(){
 	*inputVector[1] = 0;
 	*inputVector[2] = 1;
 
-	eshyperneat.substrate->UpdateInputs();
-	eshyperneat.evaluateSubstrateConnections();
-	net_output = eshyperneat.substrate->GetOutputs();
+	eshyperneat->substrate->UpdateInputs();
+	eshyperneat->evaluateSubstrateConnections();
+	net_output = eshyperneat->substrate->GetOutputs();
 	error += abs(0 - net_output[0]);
 
 	clog << "Input: 0 0 - Output: " << net_output[0] << endl;
@@ -109,9 +123,9 @@ double evaluate_xor(){
 	*inputVector[1] = 1;
 	*inputVector[2] = 1;
 
-	eshyperneat.substrate->UpdateInputs();
-	eshyperneat.evaluateSubstrateConnections();
-	net_output = eshyperneat.substrate->GetOutputs();
+	eshyperneat->substrate->UpdateInputs();
+	eshyperneat->evaluateSubstrateConnections();
+	net_output = eshyperneat->substrate->GetOutputs();
 	error += abs(0 - net_output[0]);
 
 	clog << "Input: 1 1 - Output: " << net_output[0] << endl;

@@ -97,7 +97,7 @@ void ESHyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 
 	if(dataNumber != ESHYPERNEAT_DATANUMBER)
 	{
-		cerr << "HYPERNEAT ERROR:\tThe hyperneat config file is not correct" << endl;
+		cerr << "HYPERNEAT ERROR - ESHyperNeat:\tThe hyperneat config file is not correct" << endl;
 		exit(0);
 	}
 
@@ -110,8 +110,11 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
 	// Review the parameters:
 	// initialDepth, maxDepth, varianceThreshold, bandThreshold,
 	// iterationLevel, divisionThreshold
+	clog << "Clearing substrate" << endl;
 
 	substrate->ClearSubstrate();
+
+	clog << "Substrate cleared" << endl << "Initializing temporal data" << endl;
 
 	unsigned int input_count = substrate->input_nodes.size();
 	unsigned int output_count = substrate->output_nodes.size();
@@ -124,11 +127,14 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
     vector <SpatialNode *> temp;
     vector <SpatialNode *> unexplored_nodes;
 
+    clog << "Temporal data initialized" << endl;
+
     //hidden_nodes.reserve(maxNodes);
     //connections.reserve(maxNodes + 2);
 
     // Input to hidden node connections
     for (unsigned int i = 0; i < input_count; i++){
+    	
     	root = new QuadPoint(0, 0, 1, 1);
     	temp_connections.clear();
     	DivideInitialize(substrate->input_nodes.at(i), root, organism, true);

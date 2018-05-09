@@ -109,7 +109,7 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 
 	if(dataNumber != SUBSTRATE_DATANUMBER)
 	{
-		cerr << "HYPERNEAT ERROR:\tThe hyperneat config file is not correct" << endl;
+		cerr << "HYPERNEAT ERROR - Substrate:\tThe hyperneat config file is not correct" << endl;
 		exit(0);
 	}
 	

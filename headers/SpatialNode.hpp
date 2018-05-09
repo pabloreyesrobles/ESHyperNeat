@@ -141,7 +141,7 @@ namespace ANN_USM{
 		 * \brief Get node output
 		 * \return node output value
 		 */
-		double GetOuput();
+		double GetOutput();
 
 		/**
 		 * \brief Get node function

@@ -13,7 +13,7 @@
 #include "SpatialNode.hpp"
 #include "Connection.hpp"
 
-#define SUBSTRATE_DATANUMBER 4
+#define SUBSTRATE_DATANUMBER 3
 
 using namespace std;
 /**
