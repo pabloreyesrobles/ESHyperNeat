@@ -137,12 +137,12 @@ void Substrate::Activate()
 {
 	// Iterate over connections in order to obtain its output signal
 	for (unsigned int i = 0; i < connections.size(); i++){
-		connections[i]->signal = connections[i]->source_node->activation_output * connections[i]->weight;
+		connections[i].signal = connections[i].source_node->activation_output * connections[i].weight;
 	}
 
 	// Iterate again over connections passing the output signal to target node sum
 	for (unsigned int i = 0; i < connections.size(); i++){
-		connections[i]->target_node->activation_sum += connections[i]->signal;
+		connections[i].target_node->activation_sum += connections[i].signal;
 	}
 
 	// Activate hidden nodes with the new input
@@ -201,7 +201,15 @@ void Substrate::Flush()
 	for (unsigned int i = 0; i < output_nodes.size(); i++){
 		output_nodes[i]->ClearActivation();
 	}
+}
 
+bool Substrate::CheckIfHiddenExists(SpatialNode *t_node)
+{
+	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
+		if (*t_node == *hidden_nodes[i])
+			return true;			
+	}
+	return false;
 }
 
 vector <double> Substrate::GetOutputs()
@@ -245,49 +253,69 @@ vector < int > Substrate::GetOutputOrder()
 
 string Substrate::getSubstrateConnectionString()
 {
-	stringstream connections;
+	stringstream s_connections;
 
-	connections << "Layer 0" << endl << "{" << endl;
+	s_connections << "Layer 0" << endl << "{" << endl;
 
 	for(int j = 0; j < (int)input_nodes.size(); j++)
 	{
-		connections << "\tNode " << j << endl;
-		connections << "\t{" << endl;
-		connections << input_nodes.at(j)->getConnectionString();
-		connections << "\t}" << endl;
+		s_connections << "\tNode " << j << endl;
+		s_connections << "\t{" << endl;
+		s_connections << input_nodes.at(j)->getConnectionString();
+		s_connections << "\t}" << endl;
 	}
 
-	connections << "}" << endl;
+	s_connections << "}" << endl;
 
-	connections << "Layer 1" << endl << "{" << endl;
+	s_connections << "Layer 1" << endl << "{" << endl;
 
 	if (((int)hidden_nodes.size()))
 	{
 		for(int j = 0; j < (int)hidden_nodes.size(); j++)
 		{
-			connections << "\tNode " << j << endl;
-			connections << "\t{" << endl;
-			connections << hidden_nodes.at(j)->getConnectionString();
-			connections << "\t}" << endl;
+			s_connections << "\tNode " << j << endl;
+			s_connections << "\t{" << endl;
+			s_connections << hidden_nodes.at(j)->getConnectionString();
+			s_connections << "\t}" << endl;
 		}
 	}
 
-	connections << "}" << endl;
+	s_connections << "}" << endl;
 
-	connections << "Layer 2" << endl << "{" << endl;
+	s_connections << "Layer 2" << endl << "{" << endl;
 
 	for(int j = 0; j < (int)output_nodes.size(); j++)
 	{
-		connections << "\tNode " << j << endl;
-		connections << "\t{" << endl;
-		connections << output_nodes.at(j)->getConnectionString();
-		connections << "\t}" << endl;
+		s_connections << "\tNode " << j << endl;
+		s_connections << "\t{" << endl;
+		s_connections << output_nodes.at(j)->getConnectionString();
+		s_connections << "\t}" << endl;
 	}
 
-	connections << "}" << endl;
+	s_connections << "}" << endl;
 
 
-	return connections.str();
+	return s_connections.str();
+}
+
+void Substrate::printNodes(){
+	clog << "Input nodes: " << endl;
+	for (unsigned int i = 0; i < input_nodes.size(); i++){
+		clog << "(" << input_nodes[i]->GetCoordenates()[0] << ", ";
+		clog << input_nodes[i]->GetCoordenates()[1] << ")" << endl;
+	}
+
+	clog << "Hidden nodes: " << endl;
+	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
+		clog << "(" << hidden_nodes[i]->GetCoordenates()[0] << ", ";
+		clog << hidden_nodes[i]->GetCoordenates()[1] << ")" << endl;
+	}
+
+	clog << "Output nodes: " << endl;
+	for (unsigned int i = 0; i < output_nodes.size(); i++){
+		clog << "(" << output_nodes[i]->GetCoordenates()[0] << ", ";
+		clog << output_nodes[i]->GetCoordenates()[1] << ")" << endl;
+	}
 }
 
 #endif

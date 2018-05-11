@@ -4,7 +4,7 @@ LDFLAGS = -lpthread -L. -leshyperneat -lneat
 all:
 	@mkdir -p NEAT_organisms
 	@rm -f ./NEAT_organisms/*
-	$(CC) test.cpp -o TEST $(LDFLAGS)
+	$(CC) test.cpp -g -o TEST $(LDFLAGS)
 
 run:
 	./TEST eshyperneat_config.json user_def genetic_encoding

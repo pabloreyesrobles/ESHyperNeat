@@ -36,7 +36,7 @@ namespace ANN_USM
 		vector <SpatialNode *> hidden_nodes;
 		vector <SpatialNode *> output_nodes;
 
-		vector <Connection *> connections;
+		vector <Connection> connections;
 
 		vector< double * > inputs;/**< Vector of inputs pointer of Substrate */
 		vector< double * > outputs;/**< Vector of outputs pointer of Substrate */
@@ -102,6 +102,8 @@ namespace ANN_USM
 
 		void Flush();
 
+		bool CheckIfHiddenExists(SpatialNode *t_node);
+
 		vector <double> GetOutputs();
 
 		/**
@@ -127,6 +129,8 @@ namespace ANN_USM
 		 * \return String with information of input conections of the substrate.
 		 */
 		string getSubstrateConnectionString();
+
+		void printNodes();
 	};	
 }
 #endif

@@ -19,10 +19,10 @@
 //ESHyperNeat parameters. Add to configuration file
 
 #define DivisionThreshold	0.5
-#define VarianceThreshold	0.03
-#define BandThreshold		0.3
-#define InitialDepth		2
-#define MaxDepth			3
+#define VarianceThreshold	0.003
+#define BandThreshold		0.2
+#define InitialDepth		4
+#define MaxDepth			5
 #define IterationLevel		1
 
 using namespace std;
@@ -126,8 +126,9 @@ namespace ANN_USM{
         // Evolvable Substrate HyperNEAT
         
         // Temporal connection between two spatial nodes
-        struct TempConnection
+        class TempConnection
         {
+        public:
            	SpatialNode *source;
             SpatialNode *target;
             double weight;
@@ -161,8 +162,9 @@ namespace ANN_USM{
         };
         
         // A quadpoint in the HyperCube.
-        struct QuadPoint
+        class QuadPoint
         {
+        public:
             double x;
             double y;
             double width;
@@ -170,13 +172,13 @@ namespace ANN_USM{
             double variance;
             int level;
             
-            vector < QuadPoint * > children;
+            vector <QuadPoint *> children;
             
             QuadPoint()
             {
                 x = y = width = weight = variance = 0;
                 level = 0;
-                children.reserve(4);
+                //children.reserve(4);
             }
             
             QuadPoint(double t_x, double t_y, double t_width, int t_level)
@@ -187,7 +189,7 @@ namespace ANN_USM{
                 level = t_level;
                 weight = 0.0;
                 variance = 0.0;
-                children.reserve(4);
+                //children.reserve(4);
                 children.clear();
             }
             
@@ -199,13 +201,13 @@ namespace ANN_USM{
         
         void DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing);
         
-        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection *> connections, const bool &outgoing);
+        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection> &temp_connections, const bool &outgoing);
 
         double QuadPointMean(QuadPoint *point);
         
         double QuadPointVariance(QuadPoint *point);
         
-        void Clean_Net(vector <Connection *> t_connections);
+        void Clean_Net(vector <Connection> &t_connections);
 	};
 }
 #endif
