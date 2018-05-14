@@ -101,7 +101,9 @@ void ESHyperNeat::hyperNeatJsonDeserialize(string hyperneat_info)
 		exit(0);
 	}
 
-	clog << "HYPERNEAT:\tSuccessful serialization" << endl;
+	substrate->connections.reserve(pow(4, MaxDepth) + 2);
+
+	//clog << "HYPERNEAT:\tSuccessful serialization" << endl;
 }
 
 bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
@@ -111,7 +113,6 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
 	// initialDepth, maxDepth, varianceThreshold, bandThreshold,
 	// iterationLevel, divisionThreshold
 	
-
 	substrate->ClearSubstrate();
 
 	okConnections = false;
@@ -126,10 +127,12 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
     vector <TempConnection> temp_connections;
     vector <SpatialNode *> temp;
     vector <SpatialNode *> unexplored_nodes;
+    vector <SpatialNode *> hidden_nodes;
+    vector <Connection> connections;
 
-    //hidden_nodes.reserve(maxNodes);
+    hidden_nodes.reserve(maxNodes);
     temp_connections.reserve(maxNodes + 2);
-    substrate->connections.reserve(maxNodes + 2);
+    connections.reserve(maxNodes + 2);
 	
     // Input to hidden node connections
     for (unsigned int i = 0; i < input_count; i++)
@@ -137,12 +140,12 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
     	root = new QuadPoint(0, 0, 1, 1);
     	
     	DivideInitialize(substrate->input_nodes[i], root, organism, true);
-    	clog << "---------------------------------------------" << endl;
-		clog << "Division input " << i <<" completed" << endl;
+    	//clog << "---------------------------------------------" << endl;
+		//clog << "Division input " << i <<" completed" << endl;
 		temp_connections.clear();
     	PruneAndExtraction(substrate->input_nodes[i], root, organism, temp_connections, true);
-    	clog << "Prune input " << i <<" completed" << endl;
-    	clog << "Temp connections size: " << temp_connections.size() << endl;
+    	//clog << "Prune input " << i <<" completed" << endl;
+    	//clog << "Temp connections size: " << temp_connections.size() << endl;
     	
     	for (unsigned int j = 0; j < temp_connections.size(); j++)
     	{
@@ -157,24 +160,31 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
     					{
     						h_exists = true;
     						temp_connections[j].target = substrate->hidden_nodes[h];
+    						break;
     					}
     				}
 
-    				if (!h_exists) substrate->hidden_nodes.push_back(temp_connections[j].target);
+    				if (!h_exists) hidden_nodes.push_back(temp_connections[j].target);
 
-    				temp_connections[j].target->AddInputToNode(temp_connections[j].source, temp_connections[j].weight);
+    				//temp_connections[j].target->AddInputToNode(temp_connections[j].source, temp_connections[j].weight);
     				
-	    			clog << "ADDING CONNECTION... ";
-	    			Connection *n_connection = new Connection(c_count++, temp_connections[j].source, temp_connections[j].target, temp_connections[j].weight);
-	    			substrate->connections.push_back(*n_connection);
-	    			clog << "CONNECTION ADDED" << endl;
+	    			//clog << "ADDING CONNECTION... ";
+	    			//Connection *n_connection = new Connection(c_count++, temp_connections[j].source, temp_connections[j].target, temp_connections[j].weight);
+	    			Connection n_connection;
+	    			n_connection.id_connection = c_count++;
+	    			n_connection.source_node = temp_connections[j].source;
+	    			n_connection.target_node = temp_connections[j].target;
+	    			n_connection.weight = temp_connections[j].weight;
+	    			n_connection.recurrent_flag = false;
+	    			connections.push_back(n_connection);
+	    			//clog << "CONNECTION ADDED" << endl;
     			}
     		}			
     	}
     }
 
     // Hidden to hidden node connections
-    unexplored_nodes = substrate->hidden_nodes;
+    unexplored_nodes = hidden_nodes;
     for (unsigned int i = 0; i < IterationLevel; i++)
     {
     	for (unsigned int j = 0; j < unexplored_nodes.size(); j++)
@@ -182,9 +192,9 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
     		root = new QuadPoint(0, 0, 1, 1);
     		temp_connections.clear();
     		DivideInitialize(unexplored_nodes.at(j), root, organism, true);
-    		clog << "Division 2 completed" << endl;
+    		//clog << "Division 2 completed" << endl;
     		PruneAndExtraction(unexplored_nodes.at(j), root, organism, temp_connections, true);
-    		clog << "Prune 2 completed" << endl;
+    		//clog << "Prune 2 completed" << endl;
     		for (unsigned int k = 0; k < temp_connections.size(); k++)
     		{
     			if (temp_connections[k].weight > connection_threshold)
@@ -192,40 +202,46 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
     				if (!(temp_connections[k].target)->CheckInputNode(temp_connections[k].source))
     				{
 	    				bool h_exists = false;
-	    				for (unsigned int h = 0; h < substrate->hidden_nodes.size(); h++)
+	    				for (unsigned int h = 0; h < hidden_nodes.size(); h++)
 	    				{
-	    					if (*temp_connections[k].target == *substrate->hidden_nodes[h])
+	    					if (*temp_connections[k].target == *hidden_nodes[h])
 	    					{
 	    						h_exists = true;
-	    						temp_connections[k].target = substrate->hidden_nodes[h];
+	    						temp_connections[k].target = hidden_nodes[h];
 	    					}
 	    				}
 
-	    				if (!h_exists) substrate->hidden_nodes.push_back(temp_connections[k].target);
+	    				if (!h_exists) hidden_nodes.push_back(temp_connections[k].target);
 
-	    				temp_connections[k].target->AddInputToNode(temp_connections[k].source, temp_connections[j].weight);
+	    				//temp_connections[k].target->AddInputToNode(temp_connections[k].source, temp_connections[j].weight);
 
-	    				clog << "ADDING CONNECTION... ";
-		    			Connection *n_connection = new Connection(c_count++, temp_connections[k].source, temp_connections[k].target, temp_connections[k].weight);
-		    			substrate->connections.push_back(*n_connection);
-		    			clog << "CONNECTION ADDED" << endl;
+	    				//clog << "ADDING CONNECTION... ";
+		    			//Connection *n_connection = new Connection(c_count++, temp_connections[k].source, temp_connections[k].target, temp_connections[k].weight);
+		    			Connection n_connection;
+		    			n_connection.id_connection = c_count++;
+		    			n_connection.source_node = temp_connections[k].source;
+		    			n_connection.target_node = temp_connections[k].target;
+		    			n_connection.weight = temp_connections[k].weight;
+		    			n_connection.recurrent_flag = false;
+		    			connections.push_back(n_connection);
+		    			//clog << "CONNECTION ADDED" << endl;
 	    			}
     			}
     		}
     	}
     	temp.clear();
-    	for (unsigned int j = 0; j < substrate->hidden_nodes.size(); j++)
+    	for (unsigned int j = 0; j < hidden_nodes.size(); j++)
     	{
     		vector <SpatialNode *>::iterator it;
-    		it = find(unexplored_nodes.begin(), unexplored_nodes.end(), substrate->hidden_nodes.at(j));
+    		it = find(unexplored_nodes.begin(), unexplored_nodes.end(), hidden_nodes.at(j));
     		if (it != unexplored_nodes.end())
     			continue;
-    		temp.push_back(substrate->hidden_nodes.at(j));
+    		temp.push_back(hidden_nodes.at(j));
     	}
     	unexplored_nodes = temp;
     }
 
-    clog << "hidden_nodes size: " << substrate->hidden_nodes.size() << endl; 
+    //clog << "hidden_nodes size: " << hidden_nodes.size() << endl; 
     
     // Hidden to output connections
     for (unsigned int i = 0; i < output_count; i++)
@@ -237,34 +253,61 @@ bool ESHyperNeat::createSubstrateConnections(Genetic_Encoding *organism)
 
     	for (unsigned int j = 0; j < temp_connections.size(); j++)
     	{
-    		if (temp_connections[j].weight > connection_threshold)
     		{ // REVIEW THIS THRESHOLD
     			if (!(temp_connections[j].target)->CheckInputNode(temp_connections[j].source))
     			{
-    				if (substrate->CheckIfHiddenExists(temp_connections[j].source))
+    				bool h_exists = false;
+	    				for (unsigned int h = 0; h < hidden_nodes.size(); h++)
+	    				{
+	    					if (*temp_connections[j].source == *hidden_nodes[h])
+	    					{
+	    						h_exists = true;
+	    						temp_connections[j].source = hidden_nodes[h];
+	    					}
+	    				}
+    				if (h_exists)
     				{
-    					(temp_connections[j].target)->AddInputToNode(temp_connections[j].source, temp_connections[j].weight);
-
-    					clog << "ADDING CONNECTION... ";
-		    			Connection *n_connection = new Connection(c_count++, temp_connections[j].source, temp_connections[j].target, temp_connections[j].weight);
-		    			substrate->connections.push_back(*n_connection);
-		    			clog << "CONNECTION ADDED" << endl;
+    					//(temp_connections[j].target)->AddInputToNode(temp_connections[j].source, temp_connections[j].weight);
+		    			//Connection *n_connection = new Connection(c_count++, temp_connections[j].source, temp_connections[j].target, temp_connections[j].weight);
+		    			Connection n_connection;
+		    			n_connection.id_connection = c_count++;
+		    			n_connection.source_node = temp_connections[j].source;
+		    			n_connection.target_node = temp_connections[j].target;
+		    			n_connection.weight = temp_connections[j].weight;
+		    			n_connection.recurrent_flag = false;
+		    			connections.push_back(n_connection);
     				}
     			}
     		}    			
     	}
     }
 
-    clog << "hidden_nodes size: " << substrate->hidden_nodes.size() << endl; 
+    //clog << "hidden_nodes size: " << hidden_nodes.size() << endl; 
     
-    for (unsigned int i = 0; i < substrate->connections.size(); i++)
+    //clog << "connections last size: " << connections.size() << endl;
+    Clean_Net(connections);
+    //clog << "connections new size: " << connections.size() << endl;
+
+    /*
+    for (unsigned int i = 0; i < connections.size(); i++)
     {
-		clog << "x1: " << substrate->connections[i].source_node->GetCoordenates()[0] << " y1: " << substrate->connections[i].source_node->GetCoordenates()[1];
-		clog << " x2: " << substrate->connections[i].target_node->GetCoordenates()[0] << " y2: " << substrate->connections[i].target_node->GetCoordenates()[1];
-		clog << " weight: " << substrate->connections[i].weight << endl;
+    	double x1 = connections[i].source_node->GetCoordenates()[0];
+    	double y1 = connections[i].source_node->GetCoordenates()[1];
+
+    	double x2 = connections[i].target_node->GetCoordenates()[0];
+    	double y2 = connections[i].target_node->GetCoordenates()[1];
+
+    	if ((x1 == 0 && y1 == -1) || (x2 == 0 && y2 == -1)){
+    		clog << "x1: " << connections[i].source_node->GetCoordenates()[0] << " y1: " << connections[i].source_node->GetCoordenates()[1];
+			clog << " x2: " << connections[i].target_node->GetCoordenates()[0] << " y2: " << connections[i].target_node->GetCoordenates()[1];
+			clog << " weight: " << connections[i].weight << endl;
+    	}
+		
     }
-    
-    Clean_Net(substrate->connections);
+	*/
+    substrate->hidden_nodes = hidden_nodes;
+    substrate->connections = connections;
+    //substrate->printNodes();
     okConnections = true;
     return true; // Add cases which the phenotype construction could fail
 }
@@ -292,7 +335,7 @@ bool ESHyperNeat::evaluateSubstrateConnections()
 	}
 
 	// This should be as long as many layers the substrate have. Needs improvement
-	for (unsigned int i = 0; i < 3; i++)
+	for (unsigned int i = 0; i < 10; i++)
 		substrate->Activate();
 
 	return true;
@@ -412,7 +455,7 @@ void ESHyperNeat::printConnectionFile(char * path, const char fileName[])
 	printConnectionFile(organism, fileName);
 }
 
-void ESHyperNeat::DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing)
+void ESHyperNeat::DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, bool outgoing)
 {
 	vector <double> t_input;
 	vector <double> t_output;
@@ -468,7 +511,7 @@ void ESHyperNeat::DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_E
 	}
 }
 
-void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection> &temporal_connections, const bool &outgoing)
+void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection> &temporal_connections, bool outgoing)
 {
 	if (root->children.empty())
     {
@@ -502,6 +545,7 @@ void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic
                 	t_input.push_back(root->children[i]->x);
                 	t_input.push_back(root->children[i]->y);
 
+
                     root_index = t_coordenates.size();
                 }
 
@@ -519,23 +563,23 @@ void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic
                 // Left
                 t_input[root_index] -= root->width;
                 t_output = organism->eval(t_input);
-                d_left = scaleWeight(abs(root->children[i]->weight - t_output[0]));
+                d_left = abs(root->children[i]->weight - scaleWeight(t_output[0]));
                 
                 // Right
                 t_input[root_index] += 2 * (root->width);
                 t_output = organism->eval(t_input);
-                d_right = scaleWeight(abs(root->children[i]->weight - t_output[0]));
+                d_right = abs(root->children[i]->weight - scaleWeight(t_output[0]));
 
                 // Top
                 t_input[root_index] -= root->width;
                 t_input[root_index + 1] -= root->width;
                 t_output = organism->eval(t_input);
-                d_top = scaleWeight(abs(root->children[i]->weight - t_output[0]));
+                d_top = abs(root->children[i]->weight - scaleWeight(t_output[0]));
 
                 // Bottom
                 t_input[root_index + 1] += 2 * root->width;
                 t_output = organism->eval(t_input);
-                d_bottom = scaleWeight(abs(root->children[i]->weight - t_output[0]));
+                d_bottom = abs(root->children[i]->weight - scaleWeight(t_output[0]));
 
 
                 //clog << "Checking BandThreshold in level: " << root->children[i]->level << " Band: " << max(min(d_top, d_bottom), min(d_left, d_right)) << endl;
@@ -548,8 +592,6 @@ void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic
                 	n_coordinates.push_back(root->children[i]->y);
 
                 	SpatialNode *n_node = new SpatialNode(1, n_coordinates, (char *)"SIGMOID"); // Must be variable
-                	
-                	//clog << " x1: " << node->GetCoordenates()[0] << " y1: " << node->GetCoordenates()[1] << " x2:" << n_node->GetCoordenates()[0] << " y2: " << n_node->GetCoordenates()[1] << endl;
 					
 					TempConnection n_connection;
                     if (outgoing)
@@ -558,7 +600,9 @@ void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic
                     	
                     	n_connection.source = node;
                     	n_connection.target = n_node;
-                    	n_connection.weight = scaleWeight(root->children[i]->weight);	
+                    	n_connection.weight = root->children[i]->weight;
+                    	//clog << " x1: " << node->GetCoordenates()[0] << " y1: " << node->GetCoordenates()[1] << " x2:" << n_node->GetCoordenates()[0] << " y2: " << n_node->GetCoordenates()[1];
+                    	//clog << "weight: " << n_connection.weight << endl;	
                     }
                     else
                     {
@@ -566,7 +610,9 @@ void ESHyperNeat::PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic
                     	
   						n_connection.source = n_node;
                     	n_connection.target = node;
-                    	n_connection.weight = scaleWeight(root->children[i]->weight);
+                    	n_connection.weight = root->children[i]->weight;
+                    	//clog << " x1: " << n_node->GetCoordenates()[0] << " y1: " << n_node->GetCoordenates()[1] << " x2:" << node->GetCoordenates()[0] << " y2: " << node->GetCoordenates()[1];
+                    	//clog << " weight: " << n_connection.weight << endl;
                     }
                     
                     temporal_connections.push_back(n_connection);
@@ -618,10 +664,31 @@ double ESHyperNeat::QuadPointVariance(QuadPoint *point)
 // Removes all the dangling connections. This still leaves the nodes though,
 void ESHyperNeat::Clean_Net(vector <Connection> &t_connections)
 {
-	substrate->printNodes();
+	//substrate->printNodes();
+	for (unsigned int i = 0; i < t_connections.size(); i++)
+    {
+		//clog << "x1: " << t_connections[i].source_node->GetCoordenates()[0] << " y1: " << t_connections[i].source_node->GetCoordenates()[1];
+		//clog << " x2: " << t_connections[i].target_node->GetCoordenates()[0] << " y2: " << t_connections[i].target_node->GetCoordenates()[1];
+		//clog << " weight: " << t_connections[i].weight << endl;
+
+		t_connections[i].source_node->SetOutgoing(false);
+		t_connections[i].source_node->SetIncoming(false);
+		t_connections[i].target_node->SetOutgoing(false);
+        t_connections[i].target_node->SetIncoming(false);
+    }
+    unsigned int iteration = 1;
+
     bool loose_connections = true;
     while (loose_connections)
     {
+    	for (unsigned int i = 0; i < t_connections.size(); i++)
+	    {
+			t_connections[i].source_node->SetOutgoing(false);
+			t_connections[i].source_node->SetIncoming(false);
+			t_connections[i].target_node->SetOutgoing(false);
+	        t_connections[i].target_node->SetIncoming(false);
+	    }
+
         // Make sure inputs and outputs are covered.
         for (unsigned int i = 0; i < t_connections.size(); i++)
         {
@@ -651,18 +718,17 @@ void ESHyperNeat::Clean_Net(vector <Connection> &t_connections)
 
         loose_connections = false;
 
-        clog << "t_connections b: " << t_connections.size() << endl;
+        //clog << "t_connections b_" << iteration << ": " << t_connections.size() << endl;
 
         vector <Connection>::iterator itr;
         for (itr = t_connections.begin(); itr != t_connections.end(); )
         {
-        	clog << "t_connections w: " << t_connections.size() << endl;
         	if (!itr->target_node->CheckOutgoing() || !itr->source_node->CheckIncoming())
         	{
 
-        		clog << "ERASING x1: " << itr->source_node->GetCoordenates()[0] << " y1: " << itr->source_node->GetCoordenates()[1];
-				clog << " x2: " << itr->target_node->GetCoordenates()[0] << " y2: " << itr->target_node->GetCoordenates()[1];
-				clog << " weight: " << itr->weight << endl;	
+        		//clog << "ERASING x1: " << itr->source_node->GetCoordenates()[0] << " y1: " << itr->source_node->GetCoordenates()[1];
+				//clog << " x2: " << itr->target_node->GetCoordenates()[0] << " y2: " << itr->target_node->GetCoordenates()[1];
+				//clog << " weight: " << itr->weight << endl;	
 
         		itr = t_connections.erase(itr);
 
@@ -676,8 +742,33 @@ void ESHyperNeat::Clean_Net(vector <Connection> &t_connections)
                 itr++;
             }
         }
+        /*
+        for (unsigned int i = 0; i < t_connections.size(); )
+        {
+        	clog << "t_connections w: " << t_connections.size() << endl;
+        	if (!t_connections[i].target_node->CheckOutgoing() || !t_connections[i].source_node->CheckIncoming())
+        	{
 
-        clog << "t_connections a: " << t_connections.size() << endl;
+        		clog << "ERASING x1: " << t_connections[i].source_node->GetCoordenates()[0] << " y1: " << t_connections[i].source_node->GetCoordenates()[1];
+				clog << " x2: " << t_connections[i].target_node->GetCoordenates()[0] << " y2: " << t_connections[i].target_node->GetCoordenates()[1];
+				clog << " weight: " << t_connections[i].weight << endl;	
+
+        		t_connections.erase(t_connections.begin()+i);
+
+        		if (!loose_connections)
+                {
+                    loose_connections = true;
+                }
+        	}
+        	
+        	else
+            {
+                i++;
+            }
+
+        }
+	*/
+        //clog << "t_connections a_" << iteration++ << ": " << t_connections.size() << endl;
     }
     /*
     // Finally remove the nodes not connected

@@ -146,8 +146,10 @@ void Substrate::Activate()
 	}
 
 	// Activate hidden nodes with the new input
-	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
-		hidden_nodes[i]->ActivateNode();
+	for (unsigned int i = 0; i < 2; i++){
+		for (unsigned int j = 0; j < hidden_nodes.size(); j++){
+			hidden_nodes[j]->ActivateNode();
+		}	
 	}
 
 	// Activate output nodes with the new input
@@ -181,9 +183,9 @@ void Substrate::ClearSubstrate()
 	hidden_nodes.clear();
 }
 
-void Substrate::UpdateInputs(){
+void Substrate::UpdateInputs(vector <double> t_input){
 	for (unsigned int i = 0; i < input_nodes.size(); i++){
-		input_nodes[i]->activation_sum = *inputs[i];
+		input_nodes[i]->activation_sum = t_input[i];
 		input_nodes[i]->ActivateNode();
 	}
 }

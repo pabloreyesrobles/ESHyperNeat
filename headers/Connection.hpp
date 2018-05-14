@@ -33,7 +33,7 @@ namespace ANN_USM
 		/**
 		 * \brief Void constructor
 		 */
-		Connection();
+		//Connection();
 
 		/**
 		 * \brief Constructor with parameters
@@ -43,12 +43,12 @@ namespace ANN_USM
 		 * \param t_weight Weight of connection
 		 * \param t_recurrent True if connection is recurrent
 		 */
-		Connection(unsigned int t_id, SpatialNode *t_source, SpatialNode *t_target, double t_weight, bool t_recurrent = false);
+		//Connection(unsigned int t_id, SpatialNode *t_source, SpatialNode *t_target, double t_weight, bool t_recurrent = false);
 
 		/**
 		 * \brief Destructor
 		 */
-		~Connection();
+		//~Connection();
 
 		bool operator==(Connection const& other) const
 	    {

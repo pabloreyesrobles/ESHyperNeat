@@ -3,7 +3,7 @@
 
 #include "Connection.hpp"
 using namespace ANN_USM;
-
+/*
 Connection::Connection(){
 
 }
@@ -22,5 +22,6 @@ Connection::~Connection(){
 	free(source_node);
 	free(target_node);
 }
+*/
 
 #endif

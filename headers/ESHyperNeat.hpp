@@ -20,7 +20,7 @@
 
 #define DivisionThreshold	0.5
 #define VarianceThreshold	0.003
-#define BandThreshold		0.2
+#define BandThreshold		0.1
 #define InitialDepth		4
 #define MaxDepth			5
 #define IterationLevel		1
@@ -199,9 +199,9 @@ namespace ANN_USM{
             };
         };
         
-        void DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, const bool &outgoing);
+        void DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, bool outgoing);
         
-        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection> &temp_connections, const bool &outgoing);
+        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection> &temp_connections, bool outgoing);
 
         double QuadPointMean(QuadPoint *point);
         

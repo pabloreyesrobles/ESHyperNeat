@@ -112,8 +112,10 @@ void SpatialNode::ClearActivation()
 }
 
 void SpatialNode::ActivateNode()
-{
+{	
 	activation_output = (this->*NodeFunction)(activation_sum);
+	//clog << "SpatialNode at : (" << GetCoordenates()[0] << ", " << GetCoordenates()[1] << ") activation_sum: " << activation_sum << endl;
+	//clog << "SpatialNode at : (" << GetCoordenates()[0] << ", " << GetCoordenates()[1] << ") activation_output: " << activation_output << endl;
 }
 
 void SpatialNode::OutputCalcule()

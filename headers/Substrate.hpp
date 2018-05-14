@@ -98,7 +98,7 @@ namespace ANN_USM
 
 		void ClearSubstrate();
 
-		void UpdateInputs();
+		void UpdateInputs(vector <double> t_input);
 
 		void Flush();
 
