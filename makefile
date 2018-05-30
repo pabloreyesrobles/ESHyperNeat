@@ -5,7 +5,7 @@ CFLAGS = -g -Wall -fPIC -I./headers
 LDFLAGS = -lpthread -L. -lneat
 OBJS = ./objects/ESHyperNeat.o ./objects/Substrate.o ./objects/SpatialNode.o ./objects/CPPNInputs.o ./objects/Connection.o 
 
-all: ESHyperNeat.o Substrate.o SpatialNode.o CPPNInputs.o Connection.o  	
+all: SpatialNode.o Substrate.o CPPNInputs.o Connection.o ESHyperNeat.o   	
 	
 ESHyperNeat.o: ESHyperNeat.cpp
 	@mkdir -p objects

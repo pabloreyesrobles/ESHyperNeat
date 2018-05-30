@@ -32,21 +32,21 @@ namespace ANN_USM
 		
 	public:
 		// Vector of nodes in each layer of each layout in the substrate. There is one layer for each node type.
-		vector <SpatialNode *> input_nodes; 
-		vector <SpatialNode *> hidden_nodes;
-		vector <SpatialNode *> output_nodes;
+		vector <SpatialNode> input_nodes; 
+		vector <SpatialNode> hidden_nodes;
+		vector <SpatialNode> output_nodes;
 
 		vector <Connection> connections;
 
-		vector< double * > inputs;/**< Vector of inputs pointer of Substrate */
-		vector< double * > outputs;/**< Vector of outputs pointer of Substrate */
+		vector<double> inputs;/**< Vector of inputs pointer of Substrate */
+		vector<double> outputs;/**< Vector of outputs pointer of Substrate */
 
 		/**
 		 * \brief Constructor with parameters
 		 * \param inputs Vector of all substrate inputs
 		 * \param outputs Vector of all substrate outputs
 		 */
-		Substrate(vector < double * > inputs, vector < double * > outputs);
+		Substrate(vector <double> inputs, vector <double> outputs);
 
 		/**
 		 * \brief Void constructor
@@ -69,7 +69,7 @@ namespace ANN_USM
 		 * \param layer_num Layer number
 		 * \return Layer node number
 		 */
-		int GetLayerNodesNumber(vector <SpatialNode *> layer);
+		int GetLayerNodesNumber(vector <SpatialNode> layer);
 
 		/**
 		 * \brief Get a spatial node of a specific layer and of a specific position in this layer
@@ -77,7 +77,7 @@ namespace ANN_USM
 		 * \param layer_node_num Layer node number
 		 * \return Indicated spatial node pointer
 		 */
-		SpatialNode * GetSpatialNode(vector <SpatialNode *> layer, int layer_node_num);
+		//SpatialNode &GetSpatialNode(vector <SpatialNode> layer, int layer_node_num);
 
 		/**
 		 * \brief Perform an activation of the entire substrate. Should be done many times as layers in the substrate.
@@ -88,13 +88,13 @@ namespace ANN_USM
 		 * \brief Evaluate spatial node outputs of a specific layer
 		 * \param layer_num Layer number
 		 */
-		void EvaluateSpatialNode(vector <SpatialNode *> layer);
+		void EvaluateSpatialNode(vector <SpatialNode> layer);
 
 		/**
 		 * \brief Clear of input vector of all spatial nodes in a specific layer
 		 * \param layer_num Layer number
 		 */
-		void ClearSpatialNodeInputs(vector <SpatialNode *> layer);
+		void ClearSpatialNodeInputs(vector <SpatialNode> layer);
 
 		void ClearSubstrate();
 
@@ -102,7 +102,9 @@ namespace ANN_USM
 
 		void Flush();
 
-		bool CheckIfHiddenExists(SpatialNode *t_node);
+		void ConnectionReferenceUpdate();
+
+		bool CheckIfHiddenExists(SpatialNode t_node);
 
 		vector <double> GetOutputs();
 

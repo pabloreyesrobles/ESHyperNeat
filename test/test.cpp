@@ -10,8 +10,8 @@
 using namespace std;
 using namespace ANN_USM;
 
-vector <double *> inputVector;
-vector <double *> outputVector;
+vector <double> inputVector;
+vector <double> outputVector;
 
 Population *cppn_neat;
 
@@ -25,55 +25,62 @@ int main(int argc, char *argv[])
 	srand (time(0));
 		
 	for (unsigned int i = 0; i < INPUTS; i++){
-		inputVector.push_back(new double);
+		inputVector.push_back(0.0);
 	}
 
 	for (unsigned int i = 0; i < OUTPUTS; i++){
-		outputVector.push_back(new double);
+		outputVector.push_back(0.0);
 	}
 
+	clog << "Initializing ANN" << endl;
 	cppn_neat = new Population((char*)"user_def", (char*)"genetic_encoding", (char*)"NEAT", (char*)"./NEAT_organisms/");
+	clog << "Initializing ESHYPERNEAT" << endl;
 	eshyperneat = new ESHyperNeat(inputVector, outputVector, (char *)"eshyperneat_config.json");
 
-	vector <vector <double>> fitnesses;
-	vector <double> t_fitnesses;
+	//vector <vector <double>> fitnesses;
+	//vector <double> t_fitnesses;
 	double fitness;
+	double max_fitness = 0;
 
 	clog << "Initialized!" << endl;
-
 	/*
 	if(!eshyperneat->createSubstrateConnections(&(cppn_neat->organisms[0])));
+
+	clog << "Substrate_created!" << endl;
 	
 	fitness = evaluate_xor();
 	clog << "-----------------------------------------------" << endl;
 	clog << "Fitnesses: " << fitness << endl;
 	*/
-	//*
 	for(int i = 0; i < cppn_neat->GENERATIONS; i++)
 	{
-		t_fitnesses.clear();
+		//t_fitnesses.clear();
 		
 		for (int j = 0; j < cppn_neat->POPULATION_MAX; j++)
 		{
-			clog << "-----------------------------------------------" << endl;
-			//clog << "Generation: " << i << " Population: " << j << endl;
 			// Improve this
 			if(!eshyperneat->createSubstrateConnections(&cppn_neat->organisms.at(j))) continue;
 			
 			fitness = evaluate_xor();
-
+			if (fitness > max_fitness){
+				clog << "Generation: " << i << " Population: " << j;
+				clog << " fitness: " << fitness << endl;
+				max_fitness = fitness;
+			}
 			cppn_neat->organisms[j].fitness = fitness;
-			t_fitnesses.push_back(fitness);
-			clog << "Fitnesses_" << i << j << ": " << fitness << endl;
+			//t_fitnesses.push_back(fitness);
+			//clog << "Fitnesses_" << i << j << ": " << fitness;
 			if (fitness > 15.0){
+				clog << " REACHED MAX" << endl;
 				break;
 			}
-			
+					
 		}
 		//clog << endl;
 		//fitnesses.push_back(t_fitnesses);
 		cppn_neat->epoch();
 	}
+	//clog << "max_fitness: " << max_fitness << endl;
 	//*/
 
 	//eshyperneat->getHyperNeatOutputFunctions((char*)"genetic_encoding");

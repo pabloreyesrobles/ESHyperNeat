@@ -2,10 +2,10 @@
 	"n_AditionalCPPNInputs": 1,
 	"AditionalCPPNInputs":
 	[
-		"BIAS", 0.4
+		"BIAS", 1.0
 	],
-	"connection_threshold": 0.00833,	
-	"max_connection_weight": 0.4,
+	"connection_threshold": 0.0833,	
+	"max_connection_weight": 1.0,
 	"Substrate":
 	{
 		"coordenate_type": 2,

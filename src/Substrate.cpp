@@ -4,7 +4,7 @@
 #include "Substrate.hpp"
 using namespace ANN_USM;
 
-Substrate::Substrate(vector < double * > inputs, vector < double * > outputs){
+Substrate::Substrate(vector <double> inputs, vector <double> outputs){
 	this->inputs = inputs;
 	this->outputs = outputs;	
 }
@@ -13,9 +13,9 @@ Substrate::Substrate(){
 
 }
 Substrate::~Substrate(){
-	vector<SpatialNode *>().swap(input_nodes);
-	vector<SpatialNode *>().swap(hidden_nodes);
-	vector<SpatialNode *>().swap(output_nodes);
+	vector<SpatialNode>().swap(input_nodes);
+	vector<SpatialNode>().swap(hidden_nodes);
+	vector<SpatialNode>().swap(output_nodes);
 }
 
 char * Substrate::SJsonDeserialize(char * substrate_info)
@@ -90,15 +90,22 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 					{	
 						substrate_info = strtok(NULL, delimeters);
 						coordenates.push_back(atof(substrate_info));
-					}			
+					}
 
+					SpatialNode new_node(node_type, coordenates, node_function);
+					/*
+					SpatialNode new_node;
+					new_node.node_type = node_type;
+					new_node.coordenates = coordenates;
+					new_node.node_function = node_function;
+					*/
 					if(node_type == 0){
-						input_nodes.push_back(new SpatialNode(node_type, coordenates, node_function));
-						input_nodes.at(j)->SetInputToInputNode(inputs.at(IO_id), IO_id);
+						input_nodes.push_back(new_node);
+						input_nodes[j].SetInputToInputNode(inputs[IO_id], IO_id);
 					}
 					else if(node_type == 2){
-						output_nodes.push_back(new SpatialNode(node_type, coordenates, node_function));
-						output_nodes.at(j)->SetOutputToOutputNode(outputs.at(IO_id), IO_id);
+						output_nodes.push_back(new_node);
+						output_nodes[j].SetOutputToOutputNode(outputs[IO_id], IO_id);
 					}
 
 				}
@@ -116,13 +123,13 @@ char * Substrate::SJsonDeserialize(char * substrate_info)
 	return substrate_info;
 }
 
-int Substrate::GetLayerNodesNumber(vector <SpatialNode *> layer)
+int Substrate::GetLayerNodesNumber(vector <SpatialNode> layer)
 {
 	// Add constraint to verify the existence of the layer. Could be replaceable by one method for each layer in order to avoid the previous.
 	return (int)layer.size();
 }
-
-SpatialNode * Substrate::GetSpatialNode(vector <SpatialNode *> layer, int node_num)
+/*
+SpatialNode &Substrate::GetSpatialNode(vector <SpatialNode> layer, int node_num)
 {
 	if(node_num + 1 > (int)layer.size())
 	{
@@ -130,9 +137,9 @@ SpatialNode * Substrate::GetSpatialNode(vector <SpatialNode *> layer, int node_n
 		return NULL;
 	}
 
-	return layer.at(node_num);
+	return &layer[node_num];
 }
-
+*/
 void Substrate::Activate()
 {
 	// Iterate over connections in order to obtain its output signal
@@ -146,69 +153,81 @@ void Substrate::Activate()
 	}
 
 	// Activate hidden nodes with the new input
-	for (unsigned int i = 0; i < 2; i++){
-		for (unsigned int j = 0; j < hidden_nodes.size(); j++){
-			hidden_nodes[j]->ActivateNode();
-		}	
-	}
-
+	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
+		hidden_nodes[i].ActivateNode();
+	}	
+	
 	// Activate output nodes with the new input
 	for (unsigned int i = 0; i < output_nodes.size(); i++){
-		output_nodes[i]->ActivateNode();
+		output_nodes[i].ActivateNode();
 	}
 }
 
-void Substrate::EvaluateSpatialNode(vector <SpatialNode *> layer)
+void Substrate::EvaluateSpatialNode(vector <SpatialNode> layer)
 {
 	for(int i = 0; i < (int)layer.size(); i++){
-		layer.at(i)->OutputCalcule();
+		layer[i].OutputCalcule();
 	}
 }
 
-void Substrate::ClearSpatialNodeInputs(vector <SpatialNode *> layer)
+void Substrate::ClearSpatialNodeInputs(vector <SpatialNode> layer)
 {
 	for(int i = 0; i < (int)layer.size(); i++){
-		layer.at(i)->ClearInputs();
+		layer[i].ClearInputs();
 	}
 }
 
 void Substrate::ClearSubstrate()
 {
 	connections.clear();
+	vector<Connection>().swap(connections);
 
 	ClearSpatialNodeInputs(input_nodes);
 	ClearSpatialNodeInputs(hidden_nodes);
 	ClearSpatialNodeInputs(output_nodes);
 
 	hidden_nodes.clear();
+	vector<SpatialNode>().swap(hidden_nodes);
 }
 
 void Substrate::UpdateInputs(vector <double> t_input){
 	for (unsigned int i = 0; i < input_nodes.size(); i++){
-		input_nodes[i]->activation_sum = t_input[i];
-		input_nodes[i]->ActivateNode();
+		input_nodes[i].activation_sum = t_input[i];
+		input_nodes[i].ActivateNode();
 	}
 }
 
 void Substrate::Flush()
 {
 	for (unsigned int i = 0; i < input_nodes.size(); i++){
-		input_nodes[i]->ClearActivation();
+		input_nodes[i].ClearActivation();
 	}
 
 	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
-		hidden_nodes[i]->ClearActivation();
+		hidden_nodes[i].ClearActivation();
 	}
 
 	for (unsigned int i = 0; i < output_nodes.size(); i++){
-		output_nodes[i]->ClearActivation();
+		output_nodes[i].ClearActivation();
+	}
+}
+//BY NOW
+void Substrate::ConnectionReferenceUpdate(){
+	for(unsigned int i = 0; i < connections.size(); i++){
+		for(unsigned int j = 0; j < hidden_nodes.size(); j++){
+			if(*connections[i].source_node == hidden_nodes[j])
+				connections[i].source_node = &hidden_nodes[j];
+
+			if(*connections[i].target_node == hidden_nodes[j])
+				connections[i].target_node = &hidden_nodes[j];
+		}
 	}
 }
 
-bool Substrate::CheckIfHiddenExists(SpatialNode *t_node)
+bool Substrate::CheckIfHiddenExists(SpatialNode t_node)
 {
 	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
-		if (*t_node == *hidden_nodes[i])
+		if (t_node == hidden_nodes[i])
 			return true;			
 	}
 	return false;
@@ -218,7 +237,7 @@ vector <double> Substrate::GetOutputs()
 {
 	vector <double> temp;
 	for (unsigned int i = 0; i < output_nodes.size(); i++){
-		temp.push_back(output_nodes[i]->GetOutput());
+		temp.push_back(output_nodes[i].GetOutput());
 	}
 
 	return temp;
@@ -229,7 +248,7 @@ vector < string > Substrate::GetSubstrateOutputFunctions()
 	vector < string > functions;
 	
 	for(int j = 0; j < (int)output_nodes.size(); j++)
-		functions.push_back(output_nodes.at(j)->GetOutputNodeFunction());
+		functions.push_back(output_nodes[j].GetOutputNodeFunction());
 	
 	return functions;
 }
@@ -238,7 +257,7 @@ vector < int > Substrate::GetInputOrder()
 	vector < int > input_order;
 	
 	for(int j = 0; j < (int)input_nodes.size(); j++)
-		input_order.push_back(input_nodes.at(j)->GetInputId());
+		input_order.push_back(input_nodes[j].GetInputId());
 	
 	return input_order;
 }
@@ -248,7 +267,7 @@ vector < int > Substrate::GetOutputOrder()
 	vector < int > output_order;
 	
 	for(int j = 0; j < (int)output_nodes.size(); j++)
-		output_order.push_back(output_nodes.at(j)->GetOutputId());
+		output_order.push_back(output_nodes[j].GetOutputId());
 	
 	return output_order;
 }
@@ -263,7 +282,7 @@ string Substrate::getSubstrateConnectionString()
 	{
 		s_connections << "\tNode " << j << endl;
 		s_connections << "\t{" << endl;
-		s_connections << input_nodes.at(j)->getConnectionString();
+		s_connections << input_nodes[j].getConnectionString();
 		s_connections << "\t}" << endl;
 	}
 
@@ -277,7 +296,7 @@ string Substrate::getSubstrateConnectionString()
 		{
 			s_connections << "\tNode " << j << endl;
 			s_connections << "\t{" << endl;
-			s_connections << hidden_nodes.at(j)->getConnectionString();
+			s_connections << hidden_nodes[j].getConnectionString();
 			s_connections << "\t}" << endl;
 		}
 	}
@@ -290,7 +309,7 @@ string Substrate::getSubstrateConnectionString()
 	{
 		s_connections << "\tNode " << j << endl;
 		s_connections << "\t{" << endl;
-		s_connections << output_nodes.at(j)->getConnectionString();
+		s_connections << output_nodes[j].getConnectionString();
 		s_connections << "\t}" << endl;
 	}
 
@@ -303,20 +322,20 @@ string Substrate::getSubstrateConnectionString()
 void Substrate::printNodes(){
 	clog << "Input nodes: " << endl;
 	for (unsigned int i = 0; i < input_nodes.size(); i++){
-		clog << "(" << input_nodes[i]->GetCoordenates()[0] << ", ";
-		clog << input_nodes[i]->GetCoordenates()[1] << ")" << endl;
+		clog << "(" << input_nodes[i].GetCoordenates()[0] << ", ";
+		clog << input_nodes[i].GetCoordenates()[1] << ")" << endl;
 	}
 
 	clog << "Hidden nodes: " << endl;
 	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
-		clog << "(" << hidden_nodes[i]->GetCoordenates()[0] << ", ";
-		clog << hidden_nodes[i]->GetCoordenates()[1] << ")" << endl;
+		clog << "(" << hidden_nodes[i].GetCoordenates()[0] << ", ";
+		clog << hidden_nodes[i].GetCoordenates()[1] << ")" << endl;
 	}
 
 	clog << "Output nodes: " << endl;
 	for (unsigned int i = 0; i < output_nodes.size(); i++){
-		clog << "(" << output_nodes[i]->GetCoordenates()[0] << ", ";
-		clog << output_nodes[i]->GetCoordenates()[1] << ")" << endl;
+		clog << "(" << output_nodes[i].GetCoordenates()[0] << ", ";
+		clog << output_nodes[i].GetCoordenates()[1] << ")" << endl;
 	}
 }
 

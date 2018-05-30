@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string.h>
 #include <cmath>
+#include <memory>
 
 // --------- SIGMOID FUNCTION DEFINE --------- //
 #define SIGMOID_CONST 4.9 
@@ -33,29 +34,29 @@ namespace ANN_USM{
 		int node_type;
 
 		// coordenate node vector 
-		vector < double > coordenates;
+		vector <double> coordenates;
 
 		// vector of weight associated with each input node connection 
-		vector < double > inputs_weight;
+		vector <double> inputs_weight;
 
 		// vector of input node pointer 
-		vector < SpatialNode * > inputs_nodes;
+		vector <SpatialNode *> inputs_nodes;
 
 		// substrate input pointer. Only if the node is in input mode 
-		double * input;
+		double input;
 
 		// Id value of Substrate input 
 		int input_id;
 
 		// output node pointer 
-		double * output;
+		double output;
 
 		// Id value of Substrate output 
 		int output_id;
 
 		bool active;
 
-		char * node_function;
+		char *node_function;
 
 		double (SpatialNode::*NodeFunction)(double);
 
@@ -91,28 +92,31 @@ namespace ANN_USM{
 		 * \param input Input pointer
 		 * \param input_id HyperNeat input id
 		 */
-		void SetInputToInputNode(double * input, int input_id);
+		void SetInputToInputNode(double input, int input_id);
 
 		/**
 		 * \brief Assign output to output type node
 		 * \param output Output pointer
 		 * \param output_id HyperNeat output id
 		 */
-		void SetOutputToOutputNode(double * output, int output_id);
+		void SetOutputToOutputNode(double output, int output_id);
 
 		/**
 		 * \brief Check if input_node is already connected to node
 		 * \param input_node Node to be checked if already connected
 		 */
-		bool CheckInputNode(SpatialNode *input_node);
+		bool CheckInputNode(SpatialNode input_node);
 
 		/**
 		 * \brief Add input to node from other node
 		 * \param input_node Input node pointer
 		 * \param input_weight Weight associated to connection
 		 */
-		void AddInputToNode(SpatialNode * input_node, double input_weight);
+		void AddInputToNode(SpatialNode input_node, double input_weight);
 
+		/**
+		 * \brief Perform a clear of activation over the inputs in the node
+		 */
 		void ClearActivation();
 
 		/**
@@ -192,6 +196,10 @@ namespace ANN_USM{
 		string getConnectionString();
 
 		bool operator == (const SpatialNode &node) const;
+
+		bool operator != (const SpatialNode &node) const;
+
+		void operator = (const SpatialNode &node);
 
 	};
 }

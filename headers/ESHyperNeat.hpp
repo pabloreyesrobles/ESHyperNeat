@@ -13,13 +13,14 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <memory>
 
 #define ESHYPERNEAT_DATANUMBER 5
 
 //ESHyperNeat parameters. Add to configuration file
 
 #define DivisionThreshold	0.5
-#define VarianceThreshold	0.003
+#define VarianceThreshold	0.009
 #define BandThreshold		0.1
 #define InitialDepth		4
 #define MaxDepth			5
@@ -60,7 +61,7 @@ namespace ANN_USM{
 		 * \param outputs Output vector.
 		 * \param EShyperneat_info_file Json file.
 		 */
-		ESHyperNeat(vector < double * > inputs, vector < double * > outputs, char * config_file);
+		ESHyperNeat(vector <double> inputs, vector <double> outputs, char *config_file);
 
 		/**
 		 * \brief Destructor.
@@ -129,8 +130,8 @@ namespace ANN_USM{
         class TempConnection
         {
         public:
-           	SpatialNode *source;
-            SpatialNode *target;
+           	SpatialNode source;
+            SpatialNode target;
             double weight;
             
             TempConnection()
@@ -138,7 +139,7 @@ namespace ANN_USM{
             	weight = 0;
             }
             
-            TempConnection(SpatialNode *t_source, SpatialNode *t_target, double t_weight)
+            TempConnection(SpatialNode t_source, SpatialNode t_target, double t_weight)
             {
                 source = t_source;
                 target = t_target;
@@ -155,10 +156,6 @@ namespace ANN_USM{
                 return (source == rhs.source && target == rhs.target);
             }
             
-            bool operator!=(const TempConnection &rhs) const
-            {
-                return (source != rhs.source && target != rhs.target);
-            }
         };
         
         // A quadpoint in the HyperCube.
@@ -172,7 +169,7 @@ namespace ANN_USM{
             double variance;
             int level;
             
-            vector <QuadPoint *> children;
+            vector <shared_ptr<QuadPoint>> children;
             
             QuadPoint()
             {
@@ -199,15 +196,17 @@ namespace ANN_USM{
             };
         };
         
-        void DivideInitialize(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, bool outgoing);
+        void DivideInitialize(SpatialNode node, shared_ptr<QuadPoint> root, Genetic_Encoding *organism, bool outgoing);
         
-        void PruneAndExtraction(SpatialNode *node, QuadPoint *root, Genetic_Encoding *organism, vector <TempConnection> &temp_connections, bool outgoing);
+        void PruneAndExtraction(SpatialNode node, shared_ptr<QuadPoint> root, Genetic_Encoding *organism, vector <TempConnection> &temp_connections, bool outgoing);
 
-        double QuadPointMean(QuadPoint *point);
+        double QuadPointMean(shared_ptr<QuadPoint> point);
         
-        double QuadPointVariance(QuadPoint *point);
+        double QuadPointVariance(shared_ptr<QuadPoint> point);
         
-        void Clean_Net(vector <Connection> &t_connections);
+        void Clean_Net(vector <Connection> &t_connections, vector <SpatialNode> &t_nodes);
+
+        //void Clean_QuadPoint(shared_ptr<QuadPoint> t_quad);
 	};
 }
 #endif
