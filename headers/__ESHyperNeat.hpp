@@ -205,7 +205,7 @@ namespace ANN_USM{
         
         double QuadPointVariance(shared_ptr <QuadPoint> point);
         
-        void Clean_Net(vector <Connection> &t_connections, unsigned int node_size, unsigned int io_count);
+        void Clean_Net(vector <Connection> &t_connections, vector <SpatialNode> &t_nodes);
 
         //void Clean_QuadPoint(shared_ptr<QuadPoint> t_quad);
 	};

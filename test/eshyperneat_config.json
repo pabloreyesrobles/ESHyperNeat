@@ -4,7 +4,7 @@
 	[
 		"BIAS", 1.0
 	],
-	"connection_threshold": 0.0833,	
+	"connection_threshold": 0.2,	
 	"max_connection_weight": 1.0,
 	"Substrate":
 	{

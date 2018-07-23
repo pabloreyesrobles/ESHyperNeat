@@ -17,6 +17,8 @@ Population *cppn_neat;
 
 ESHyperNeat *eshyperneat;
 
+NeuralNetwork net();
+
 double evaluate_xor();
 
 int main(int argc, char *argv[])
@@ -59,7 +61,7 @@ int main(int argc, char *argv[])
 		for (int j = 0; j < cppn_neat->POPULATION_MAX; j++)
 		{
 			// Improve this
-			if(!eshyperneat->createSubstrateConnections(&cppn_neat->organisms.at(j))) continue;
+			if(!eshyperneat->createSubstrateConnections(&cppn_neat->organisms.at(j), &net)) continue;
 			
 			fitness = evaluate_xor();
 			if (fitness > max_fitness){
@@ -100,41 +102,41 @@ double evaluate_xor(){
 	t_input.push_back(0.0);
 	t_input.push_back(0.0);
 
-	eshyperneat->substrate->Flush();
+	net.ResetValues();
 
 	t_input[0] = 1;
 	t_input[1] = 0;
 	t_input[2] = 1;
 
-	eshyperneat->substrate->UpdateInputs(t_input);
-	eshyperneat->evaluateSubstrateConnections();
-	net_output = eshyperneat->substrate->GetOutputs();
+	net.Input(t_input);
+	for (unsigned int i = 0; i < MaxDepth; i++) net.ActivateNet();
+	net_output = net.Output();
 	error += abs(1 - abs(net_output[0]));	
 	
 	t_input[0] = 0;
 	t_input[1] = 1;
 	t_input[2] = 1;
 
-	eshyperneat->substrate->UpdateInputs(t_input);
-	eshyperneat->evaluateSubstrateConnections();
-	net_output = eshyperneat->substrate->GetOutputs();
+	net.Input(t_input);
+	for (unsigned int i = 0; i < MaxDepth; i++) net.ActivateNet();
+	net_output = net.Output();
 	error += abs(1 - abs(net_output[0]));
 	t_input[0] = 0;
 	t_input[1] = 0;
 	t_input[2] = 1;
 
-	eshyperneat->substrate->UpdateInputs(t_input);
-	eshyperneat->evaluateSubstrateConnections();
-	net_output = eshyperneat->substrate->GetOutputs();
+	net.Input(t_input);
+	for (unsigned int i = 0; i < MaxDepth; i++) net.ActivateNet();
+	net_output = net.Output();
 	error += abs(0 - abs(net_output[0]));
 
 	t_input[0] = 1;
 	t_input[1] = 1;
 	t_input[2] = 1;
 
-	eshyperneat->substrate->UpdateInputs(t_input);
-	eshyperneat->evaluateSubstrateConnections();
-	net_output = eshyperneat->substrate->GetOutputs();
+	net.Input(t_input);
+	for (unsigned int i = 0; i < MaxDepth; i++) net.ActivateNet();
+	net_output = net.Output();
 	error += abs(0 - abs(net_output[0]));
 	
 	return pow(4 - error, 2);

@@ -1,6 +1,6 @@
 EXECUTABLE = ESHyperNeat
 VPATH = ./src ./headers ./objects
-CC = g++ -O3
+CC = g++ -O3 -std=c++0x
 CFLAGS = -g -Wall -fPIC -I./headers 
 LDFLAGS = -lpthread -L. -lneat
 OBJS = ./objects/ESHyperNeat.o ./objects/Substrate.o ./objects/SpatialNode.o ./objects/CPPNInputs.o ./objects/Connection.o 

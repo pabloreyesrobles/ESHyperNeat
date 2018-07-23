@@ -535,7 +535,7 @@ void ESHyperNeat::printConnectionFile(char * path, const char fileName[])
 	printConnectionFile(organism, fileName);
 }
 
-void ESHyperNeat::DivideInitialize(vector <double> node, shared_ptr <QuadPoint> root, Genetic_Encoding *organism, bool outgoing)
+void ESHyperNeat::DivideInitialize(vector <double> node, shared_ptr<QuadPoint> root, Genetic_Encoding *organism, bool outgoing)
 {
 	vector <double> t_input;
 	vector <double> t_output;
@@ -591,7 +591,7 @@ void ESHyperNeat::DivideInitialize(vector <double> node, shared_ptr <QuadPoint> 
 	}
 }
 
-void ESHyperNeat::PruneAndExtraction(vector<double> node, shared_ptr <QuadPoint> root, Genetic_Encoding *organism, vector <TempConnection> &temporal_connections, bool outgoing)
+void ESHyperNeat::PruneAndExtraction(vector<double> node, shared_ptr<QuadPoint> root, Genetic_Encoding *organism, vector <TempConnection> &temporal_connections, bool outgoing)
 {
 	if (root->children.empty())
     {
