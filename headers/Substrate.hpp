@@ -11,7 +11,6 @@
 #include <fstream>
 
 #include "SpatialNode.hpp"
-#include "Connection.hpp"
 
 #define SUBSTRATE_DATANUMBER 3
 
@@ -35,8 +34,6 @@ namespace ANN_USM
 		vector <SpatialNode> input_nodes; 
 		vector <SpatialNode> hidden_nodes;
 		vector <SpatialNode> output_nodes;
-
-		vector <Connection> connections;
 
 		vector<double> inputs;/**< Vector of inputs pointer of Substrate */
 		vector<double> outputs;/**< Vector of outputs pointer of Substrate */
@@ -80,11 +77,6 @@ namespace ANN_USM
 		//SpatialNode &GetSpatialNode(vector <SpatialNode> layer, int layer_node_num);
 
 		/**
-		 * \brief Perform an activation of the entire substrate. Should be done many times as layers in the substrate.
-		*/
-		void Activate();
-
-		/**
 		 * \brief Evaluate spatial node outputs of a specific layer
 		 * \param layer_num Layer number
 		 */
@@ -101,8 +93,6 @@ namespace ANN_USM
 		void UpdateInputs(vector <double> t_input);
 
 		void Flush();
-
-		void ConnectionReferenceUpdate();
 
 		bool CheckIfHiddenExists(SpatialNode t_node);
 

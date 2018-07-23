@@ -3,7 +3,6 @@
 
 #include <NEAT>
 #include "Substrate.hpp"
-//#include "Connection.hpp"
 #include "CPPNInputs.hpp"
 #include "NeuralNetwork.hpp"
 #include <vector>
@@ -23,8 +22,8 @@
 #define DivisionThreshold	0.5
 #define VarianceThreshold	0.009
 #define BandThreshold		0.1
-#define InitialDepth		4
-#define MaxDepth			5
+#define InitialDepth		2
+#define MaxDepth			3
 #define IterationLevel		1
 
 using namespace std;
@@ -80,14 +79,14 @@ namespace ANN_USM{
 		 * \param organism Organism of CPPN-NEAT that will create connections in the substrate.
 		 * \return The return value is true if the creation of connections was successful and false if it was not.
 		 */
-		bool createSubstrateConnections(Genetic_Encoding * organism);
+		bool createSubstrateConnections(Genetic_Encoding *organism, NeuralNetwork &net);
 
 		/**
 		 * \brief Create all substrate connections according to CPPN-NEAT result.
 		 * \param Path to the organism of CPPN-NEAT that will create connections in the substrate.
 		 * \return The return value is true if the creation of connections was successful and false if it was not.
 		 */
-		bool createSubstrateConnections(char * path);
+		bool createSubstrateConnections(char *path);
 
 		/**
 		 * \brief Allows to obtain the final HyperNeat outputs.
@@ -140,7 +139,7 @@ namespace ANN_USM{
             	weight = 0;
             }
             
-            TempConnection(SpatialNode t_source, SpatialNode t_target, double t_weight)
+            TempConnection(vector <double> t_source, vector <double> t_target, double t_weight)
             {
                 source = t_source;
                 target = t_target;

@@ -3,9 +3,9 @@ VPATH = ./src ./headers ./objects
 CC = g++ -O3 -std=c++0x
 CFLAGS = -g -Wall -fPIC -I./headers 
 LDFLAGS = -lpthread -L. -lneat
-OBJS = ./objects/ESHyperNeat.o ./objects/Substrate.o ./objects/SpatialNode.o ./objects/CPPNInputs.o ./objects/Connection.o 
+OBJS = ./objects/ESHyperNeat.o ./objects/Substrate.o ./objects/SpatialNode.o ./objects/CPPNInputs.o ./objects/NeuralNetwork.o 
 
-all: SpatialNode.o Substrate.o CPPNInputs.o Connection.o ESHyperNeat.o   	
+all: SpatialNode.o Substrate.o CPPNInputs.o ESHyperNeat.o NeuralNetwork.o 
 	
 ESHyperNeat.o: ESHyperNeat.cpp
 	@mkdir -p objects
@@ -27,10 +27,10 @@ CPPNInputs.o: CPPNInputs.cpp
 	@echo "Compiling CPPNInputs.cpp to CPPNInputs.o"
 	@$(CC) $(CFLAGS) -c ./src/CPPNInputs.cpp  -o ./objects/CPPNInputs.o
 
-Connection.o: Connection.cpp 
+NeuralNetwork.o: NeuralNetwork.cpp 
 	@mkdir -p objects
-	@echo "Compiling Connection.cpp to Connection.o"
-	@$(CC) $(CFLAGS) -c ./src/Connection.cpp  -o ./objects/Connection.o
+	@echo "Compiling NeuralNetwork.cpp to NeuralNetwork.o"
+	@$(CC) $(CFLAGS) -c ./src/NeuralNetwork.cpp  -o ./objects/NeuralNetwork.o
 
 clean:
 	@rm -f -R ./objects

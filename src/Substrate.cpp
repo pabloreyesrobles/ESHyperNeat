@@ -140,28 +140,6 @@ SpatialNode &Substrate::GetSpatialNode(vector <SpatialNode> layer, int node_num)
 	return &layer[node_num];
 }
 */
-void Substrate::Activate()
-{
-	// Iterate over connections in order to obtain its output signal
-	for (unsigned int i = 0; i < connections.size(); i++){
-		connections[i].signal = connections[i].source_node->activation_output * connections[i].weight;
-	}
-
-	// Iterate again over connections passing the output signal to target node sum
-	for (unsigned int i = 0; i < connections.size(); i++){
-		connections[i].target_node->activation_sum += connections[i].signal;
-	}
-
-	// Activate hidden nodes with the new input
-	for (unsigned int i = 0; i < hidden_nodes.size(); i++){
-		hidden_nodes[i].ActivateNode();
-	}	
-	
-	// Activate output nodes with the new input
-	for (unsigned int i = 0; i < output_nodes.size(); i++){
-		output_nodes[i].ActivateNode();
-	}
-}
 
 void Substrate::EvaluateSpatialNode(vector <SpatialNode> layer)
 {
@@ -175,19 +153,6 @@ void Substrate::ClearSpatialNodeInputs(vector <SpatialNode> layer)
 	for(int i = 0; i < (int)layer.size(); i++){
 		layer[i].ClearInputs();
 	}
-}
-
-void Substrate::ClearSubstrate()
-{
-	connections.clear();
-	vector<Connection>().swap(connections);
-
-	ClearSpatialNodeInputs(input_nodes);
-	ClearSpatialNodeInputs(hidden_nodes);
-	ClearSpatialNodeInputs(output_nodes);
-
-	hidden_nodes.clear();
-	vector<SpatialNode>().swap(hidden_nodes);
 }
 
 void Substrate::UpdateInputs(vector <double> t_input){
@@ -209,18 +174,6 @@ void Substrate::Flush()
 
 	for (unsigned int i = 0; i < output_nodes.size(); i++){
 		output_nodes[i].ClearActivation();
-	}
-}
-//BY NOW
-void Substrate::ConnectionReferenceUpdate(){
-	for(unsigned int i = 0; i < connections.size(); i++){
-		for(unsigned int j = 0; j < hidden_nodes.size(); j++){
-			if(*connections[i].source_node == hidden_nodes[j])
-				connections[i].source_node = &hidden_nodes[j];
-
-			if(*connections[i].target_node == hidden_nodes[j])
-				connections[i].target_node = &hidden_nodes[j];
-		}
 	}
 }
 

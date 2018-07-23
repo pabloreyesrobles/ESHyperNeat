@@ -17,7 +17,7 @@ Population *cppn_neat;
 
 ESHyperNeat *eshyperneat;
 
-NeuralNetwork net();
+NeuralNetwork net;
 
 double evaluate_xor();
 
@@ -38,6 +38,8 @@ int main(int argc, char *argv[])
 	cppn_neat = new Population((char*)"user_def", (char*)"genetic_encoding", (char*)"NEAT", (char*)"./NEAT_organisms/");
 	clog << "Initializing ESHYPERNEAT" << endl;
 	eshyperneat = new ESHyperNeat(inputVector, outputVector, (char *)"eshyperneat_config.json");
+
+	net = NeuralNetwork();
 
 	//vector <vector <double>> fitnesses;
 	//vector <double> t_fitnesses;
@@ -61,7 +63,7 @@ int main(int argc, char *argv[])
 		for (int j = 0; j < cppn_neat->POPULATION_MAX; j++)
 		{
 			// Improve this
-			if(!eshyperneat->createSubstrateConnections(&cppn_neat->organisms.at(j), &net)) continue;
+			if(!eshyperneat->createSubstrateConnections(&cppn_neat->organisms.at(j), net)) continue;
 			
 			fitness = evaluate_xor();
 			if (fitness > max_fitness){
