@@ -20,7 +20,7 @@
 //ESHyperNeat parameters. Add to configuration file
 
 #define DivisionThreshold	0.5
-#define VarianceThreshold	0.009
+#define VarianceThreshold	0.03
 #define BandThreshold		0.1
 #define InitialDepth		2
 #define MaxDepth			3

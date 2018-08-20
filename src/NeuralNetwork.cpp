@@ -150,7 +150,7 @@ void NeuralNetwork::ActivateNet()
 		neurons[connections[i].target_id].a_input += connections[i].signal;
 	}
 
-	for (unsigned int i = 0; i < neurons.size(); i++)
+	for (unsigned int i = num_inputs; i < neurons.size(); i++)
 	{
 		neurons[i].Activate();
 	}

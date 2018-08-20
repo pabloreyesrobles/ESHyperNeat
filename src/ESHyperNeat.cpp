@@ -575,7 +575,7 @@ void ESHyperNeat::DivideInitialize(vector <double> node, shared_ptr <QuadPoint> 
 
 			t_output = organism->eval(t_input);
 			//clog << "x1: " << t_input[0] << " y1: " << t_input[1] << " x2: " << t_input[2] << " y2: " << t_input[3] << " output: " << scaleWeight(t_output[0]) << endl;
-			p->children[i]->weight = scaleWeight(t_output[0]);
+			p->children[i]->weight = t_output[0];
 		}
 
 		if ((p->level < InitialDepth) || ((p->level < MaxDepth) && QuadPointVariance(p) > DivisionThreshold)) // ADD PARAMETERS
@@ -641,23 +641,23 @@ void ESHyperNeat::PruneAndExtraction(vector<double> node, shared_ptr <QuadPoint>
                 // Left
                 t_input[root_index] -= root->width;
                 t_output = organism->eval(t_input);
-                d_left = abs(root->children[i]->weight - scaleWeight(t_output[0]));
+                d_left = abs(root->children[i]->weight - t_output[0]);
                 
                 // Right
                 t_input[root_index] += 2 * (root->width);
                 t_output = organism->eval(t_input);
-                d_right = abs(root->children[i]->weight - scaleWeight(t_output[0]));
+                d_right = abs(root->children[i]->weight - t_output[0]);
 
                 // Top
                 t_input[root_index] -= root->width;
                 t_input[root_index + 1] -= root->width;
                 t_output = organism->eval(t_input);
-                d_top = abs(root->children[i]->weight - scaleWeight(t_output[0]));
+                d_top = abs(root->children[i]->weight - t_output[0]);
 
                 // Bottom
                 t_input[root_index + 1] += 2 * root->width;
                 t_output = organism->eval(t_input);
-                d_bottom = abs(root->children[i]->weight - scaleWeight(t_output[0]));
+                d_bottom = abs(root->children[i]->weight - t_output[0]);
 
 
                 //clog << "Checking BandThreshold in level: " << root->children[i]->level << " Band: " << max(min(d_top, d_bottom), min(d_left, d_right)) << endl;

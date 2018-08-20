@@ -5,7 +5,7 @@
 		"BIAS", 1.0
 	],
 	"connection_threshold": 0.2,	
-	"max_connection_weight": 3.0,
+	"max_connection_weight": 4.0,
 	"Substrate":
 	{
 		"coordenate_type": 2,
@@ -13,12 +13,11 @@
 		"Rows":
 		[
 			{
-				"n_nodes": 3,
+				"n_nodes": 2,
 				"nodes_info":
 				[
 					[ 0, 0, -1, 1 ],
-					[ 0, 1, 0, 1 ],
-					[ 0, 2, 1, 1 ]
+					[ 0, 1, 1, 1 ]
 				]
 			},
 			{
